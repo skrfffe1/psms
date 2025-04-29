@@ -1,47 +1,73 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {
+  View, Text, TextInput, TouchableOpacity, StyleSheet, Alert
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { globalStyles } from '@/styles/global';
 import { db } from '@/firebase/config';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import {
+  collection, addDoc, serverTimestamp, getDocs, updateDoc, doc
+} from 'firebase/firestore';
 import { Picker } from '@react-native-picker/picker';
 
 export default function RequestSupplyScreen() {
   const router = useRouter();
-  const [category, setCategory] = useState('');
-  const [supplyName, setSupplyName] = useState('');
+  const [supplies, setSupplies] = useState([]);
+  const [selectedSupplyId, setSelectedSupplyId] = useState('');
   const [quantity, setQuantity] = useState('');
+  const [requester, setRequester] = useState('');
   const [reason, setReason] = useState('');
 
-  const itemValues = [
-    'Office Supplies',
-    'Electronics',
-    'Furniture',
-    'Medical Supplies',
-    'Other',
-  ];
+  // Fetch available supplies
+  useEffect(() => {
+    const fetchSupplies = async () => {
+      const snapshot = await getDocs(collection(db, 'supplies'));
+      const availableSupplies = snapshot.docs
+        .map(doc => ({ id: doc.id, ...doc.data() }))
+        .filter(item => item.quantity > 0);
+      setSupplies(availableSupplies);
+    };
+    fetchSupplies();
+  }, []);
 
   const handleSubmit = async () => {
-    if (!category.trim() || !supplyName.trim() || !quantity.trim() || !reason.trim()) {
+    if (!selectedSupplyId || !quantity.trim() || !reason.trim() || !requester.trim()) {
       Alert.alert('Error', 'Please fill in all fields.');
       return;
     }
 
+    const selectedSupply = supplies.find(s => s.id === selectedSupplyId);
+    const qty = parseInt(quantity);
+
+    if (qty > selectedSupply.quantity) {
+      Alert.alert('Insufficient Stock', `Only ${selectedSupply.quantity} available.`);
+      return;
+    }
+
     try {
+      // Add request
       await addDoc(collection(db, 'requests'), {
-        category,
-        supplyName,
-        quantity: parseInt(quantity),
+        supplyId: selectedSupplyId,
+        supplyName: selectedSupply.name,
+        category: selectedSupply.category,
+        quantity: qty,
         reason,
+        requester,
         status: 'pending',
         createdAt: serverTimestamp(),
       });
 
-      Alert.alert('Success', 'Supply request sent successfully! ✅');
-      router.back(); // Go back to dashboard after submitting
+      // Deduct stock
+      const supplyRef = doc(db, 'supplies', selectedSupplyId);
+      await updateDoc(supplyRef, {
+        quantity: selectedSupply.quantity - qty,
+      });
+
+      Alert.alert('Success', 'Request submitted and stock updated ✅');
+      router.back();
     } catch (error) {
-      console.error('Error sending request:', error.message);
-      Alert.alert('Error', 'Failed to send request.');
+      console.error('Error:', error.message);
+      Alert.alert('Error', 'Failed to submit request.');
     }
   };
 
@@ -50,25 +76,21 @@ export default function RequestSupplyScreen() {
       <Text style={globalStyles.header}>Request Supplies</Text>
 
       <View style={globalStyles.card}>
-        {/* Category Picker */}
+        {/* Supply Picker */}
         <Picker
-          selectedValue={category}
-          onValueChange={(itemValue) => setCategory(itemValue)}
+          selectedValue={selectedSupplyId}
+          onValueChange={(itemValue) => setSelectedSupplyId(itemValue)}
           style={[styles.input, { marginBottom: 15 }]}
         >
-          <Picker.Item label="Select Category..." value="" />
-          {itemValues.map((item, index) => (
-            <Picker.Item key={index} label={item} value={item} />
+          <Picker.Item label="Select Supply..." value="" />
+          {supplies.map((item) => (
+            <Picker.Item
+              key={item.id}
+              label={`${item.name} (${item.quantity} available)`}
+              value={item.id}
+            />
           ))}
         </Picker>
-
-        {/* Supply Name Input */}
-        <TextInput
-          style={styles.input}
-          placeholder="Supply Name"
-          value={supplyName}
-          onChangeText={setSupplyName}
-        />
 
         {/* Quantity Input */}
         <TextInput
@@ -79,9 +101,18 @@ export default function RequestSupplyScreen() {
           keyboardType="numeric"
         />
 
+        {/* Requester */}
+        <TextInput
+          style={[styles.input, { height: 45 }]}
+          placeholder="Requester Name"
+          value={requester}
+          onChangeText={setRequester}
+          multiline
+        />
+
         {/* Reason Input */}
         <TextInput
-          style={[styles.input, { height: 100 }]}
+          style={[styles.input, { height: 45 }]}
           placeholder="Reason for Request"
           value={reason}
           onChangeText={setReason}
