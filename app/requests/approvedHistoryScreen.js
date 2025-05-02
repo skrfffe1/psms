@@ -67,6 +67,7 @@ export default function ApprovedHistoryScreen() {
     <View style={globalStyles.card}>
       <Text style={globalStyles.sectionTitle}>{item.supplyName}</Text>
       <Text style={globalStyles.smallText}>Quantity: {item.quantity}</Text>
+      <Text style={globalStyles.smallText}>Requester: {item.requester}</Text>
       <Text style={globalStyles.smallText}>Approved for: {item.reason}</Text>
       <Text style={[globalStyles.smallText, { fontStyle: 'italic', color: '#4CAF50' }]}>{item.status}</Text>
     </View>

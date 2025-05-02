@@ -67,6 +67,7 @@ export default function RejectedHistoryScreen() {
     <View style={globalStyles.card}>
       <Text style={globalStyles.sectionTitle}>{item.supplyName}</Text>
       <Text style={globalStyles.smallText}>Quantity: {item.quantity}</Text>
+      <Text style={globalStyles.smallText}>Requester: {item.requester}</Text>
       <Text style={globalStyles.smallText}>Requested Reason: {item.reason}</Text>
       <Text style={[globalStyles.smallText, { fontStyle: 'italic', color: '#FF3B30' }]}>{item.status}</Text>
     </View>

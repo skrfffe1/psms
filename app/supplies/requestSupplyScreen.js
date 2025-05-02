@@ -35,20 +35,23 @@ export default function RequestSupplyScreen() {
       Alert.alert('Error', 'Please fill in all fields.');
       return;
     }
-
+  
     const selectedSupply = supplies.find(s => s.id === selectedSupplyId);
+    if (!selectedSupply) {
+      Alert.alert('Error', 'Selected supply not found.');
+      return;
+    }
+  
     const qty = parseInt(quantity);
-
     if (qty > selectedSupply.quantity) {
       Alert.alert('Insufficient Stock', `Only ${selectedSupply.quantity} available.`);
       return;
     }
-
+  
     try {
-      // Add request
       await addDoc(collection(db, 'requests'), {
         supplyId: selectedSupplyId,
-        supplyName: selectedSupply.name,
+        supplyName: selectedSupply.supplyName,
         category: selectedSupply.category,
         quantity: qty,
         reason,
@@ -56,20 +59,15 @@ export default function RequestSupplyScreen() {
         status: 'pending',
         createdAt: serverTimestamp(),
       });
-
-      // Deduct stock
-      const supplyRef = doc(db, 'supplies', selectedSupplyId);
-      await updateDoc(supplyRef, {
-        quantity: selectedSupply.quantity - qty,
-      });
-
-      Alert.alert('Success', 'Request submitted and stock updated ✅');
+  
+      Alert.alert('Success', 'Request submitted ✅');
       router.back();
     } catch (error) {
       console.error('Error:', error.message);
       Alert.alert('Error', 'Failed to submit request.');
     }
   };
+  
 
   return (
     <View style={globalStyles.container}>
@@ -79,14 +77,14 @@ export default function RequestSupplyScreen() {
         {/* Supply Picker */}
         <Picker
           selectedValue={selectedSupplyId}
-          onValueChange={(itemValue) => setSelectedSupplyId(itemValue)}
+          onValueChange={(itemValue) => setSelectedSupplyId(String(itemValue))}
           style={[styles.input, { marginBottom: 15 }]}
         >
           <Picker.Item label="Select Supply..." value="" />
           {supplies.map((item) => (
             <Picker.Item
               key={item.id}
-              label={`${item.name} (${item.quantity} available)`}
+              label={`${item.supplyName} (${item.quantity} available)`}
               value={item.id}
             />
           ))}

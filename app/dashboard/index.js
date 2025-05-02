@@ -105,7 +105,7 @@ export default function DashboardScreen() {
 
   const handleNotifications = () => {
     if (lowStockItems.length > 0) {
-      const names = lowStockItems.map(item => `• ${item.name} (${item.quantity})`).join('\n');
+      const names = lowStockItems.map(item => `• ${item.supplyName} (${item.quantity})`).join('\n');
       Alert.alert(
         'Low Stock Alert 🚨',
         `Items:\n${names}`
