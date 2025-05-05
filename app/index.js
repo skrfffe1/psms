@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { View, Alert, StyleSheet, Button } from 'react-native';
+import { View, Alert, StyleSheet, Button, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router'; // <-- IMPORTANT!
-import { globalStyles } from '../styles/global';
 import Header from '../components/Header';
 import InputField from '../components/InputField';
 import PrimaryButton from '../components/PrimaryButton';
@@ -33,7 +32,7 @@ export default function LoginScreen(props) {
         secureTextEntry
       />
        <View>
-       <PrimaryButton style={styles.button} label="Login" onPress={handleLogin} />
+       <PrimaryButton className='bg-gray-900' label="Login" onPress={handleLogin} />
        </View>
     </View>
   );

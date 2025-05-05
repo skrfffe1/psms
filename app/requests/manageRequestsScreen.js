@@ -21,7 +21,7 @@ export default function ManageRequestsScreen() {
     try {
       const q = query(collection(db, 'requests'), orderBy('createdAt', 'desc')); // sort by newest
       const querySnapshot = await getDocs(q);
-  
+
       const requestsData = querySnapshot.docs.map((document) => {
         const id = document.id;
         fadeAnims.current[id] = new Animated.Value(1);
@@ -30,7 +30,7 @@ export default function ManageRequestsScreen() {
           ...document.data(),
         };
       });
-  
+
       setRequests(requestsData);
       setLoading(false);
     } catch (error) {
@@ -62,12 +62,12 @@ export default function ManageRequestsScreen() {
           });
 
           // Save to separate collection
-          await addDoc(collection(db,'approvedRequests'), {
+          await addDoc(collection(db, 'approvedRequests'), {
             ...requestData,
             status: newStatus,
             decisionDate: new Date(),
           });
-        }else if (newStatus === 'rejected') {
+        } else if (newStatus === 'rejected') {
           // Save to separate collection
           await addDoc(collection(db, 'rejectedRequests'), {
             ...requestData,
@@ -75,6 +75,17 @@ export default function ManageRequestsScreen() {
             decisionDate: new Date(),
           });
         }
+
+        // Save to issuanceLogs
+        await addDoc(collection(db, 'issuanceLogs'), {
+          requester: requestData.requester,
+          supplyId,
+          supplyName,
+          quantity,
+          issuedAt: new Date(),
+          returnedAt: null,
+          conditionOnReturn: null,
+        });
 
         await updateDoc(doc(db, 'requests', requestId), {
           status: newStatus,
@@ -127,7 +138,7 @@ export default function ManageRequestsScreen() {
           <View style={styles.actionsContainer}>
             <TouchableOpacity
               style={styles.approveButton}
-              onPress={() => handleStatusChange(item.supplyName, item.id,  item.supplyId, item.quantity, 'approved')}
+              onPress={() => handleStatusChange(item.supplyName, item.id, item.supplyId, item.quantity, 'approved')}
             >
               <Text style={globalStyles.buttonText}>Approve</Text>
             </TouchableOpacity>

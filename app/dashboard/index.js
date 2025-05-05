@@ -179,9 +179,13 @@ export default function DashboardScreen() {
         <View style={globalStyles.card}>
           <Text style={globalStyles.sectionTitle}>Manage Requests</Text>
           <TouchableOpacity style={globalStyles.button} onPress={() => router.push('/requests/manageRequestsScreen')}>
-            <Text style={globalStyles.buttonText}>View Requests</Text>
+            <Text style={globalStyles.buttonText}>Supply</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={globalStyles.button} onPress={() => router.push('/requests/maintenanceRequestsScreen')}>
+            <Text style={globalStyles.buttonText}>Maintenance</Text>
           </TouchableOpacity>
         </View>
+        
 
         <View style={globalStyles.card}>
           <Text style={globalStyles.sectionTitle}>Request Histories</Text>
@@ -202,7 +206,14 @@ export default function DashboardScreen() {
             </View>
           </TouchableOpacity>
         </View>
-
+        
+        {/* Issuance Logs Section */}
+        <View style={globalStyles.card}>
+          <TouchableOpacity style={globalStyles.button} onPress={() => router.push('/issuance/issuanceLogsScreen')}>
+            <Text>View Issuance Logs</Text>
+          </TouchableOpacity>
+        </View>
+      
         {/* Recent Activity */}
         <View style={globalStyles.card}>
           <Text style={globalStyles.sectionTitle}>Recent Activity</Text>

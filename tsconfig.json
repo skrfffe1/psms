@@ -8,15 +8,16 @@
       ]
     }
   },
-"include": [
-  "**/*.ts",
-  "**/*.tsx",
-  ".expo/types/**/*.ts",
-  "expo-env.d.ts",
-  "app/_layout.js",
-  "app/index.js"
-],
-"exclude": [
-  "app/_layout.tsx"
-]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts",
+    "app/_layout.js",
+    "app/index.js",
+    "nativewind-env.d.ts"
+  ],
+  "exclude": [
+    "app/_layout.tsx"
+  ]
 }
