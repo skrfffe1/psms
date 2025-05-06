@@ -13,8 +13,8 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
-    "app/_layout.js",
-    "app/index.js",
+    "app/screens/_layout.js",
+    "app/login.js",
     "nativewind-env.d.ts"
   ],
   "exclude": [
