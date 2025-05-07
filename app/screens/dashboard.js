@@ -1,52 +1,102 @@
-import { StyleSheet, View } from 'react-native'
-import * as React from 'react';
-import { Text } from 'react-native-paper';
+import React from 'react';
+import { ScrollView, StyleSheet, View, Dimensions } from 'react-native';
+import { Card, Text } from 'react-native-paper';
+import { BarChart } from 'react-native-chart-kit';
+
+const screenWidth = Dimensions.get('window').width;
 
 export default function dashboard() {
+  // Sample data
+  const totalSupplies = 120;
+  const pendingRequests = 30;
+  const fulfilledRequests = 75;
+
+  const chartData = {
+    labels: ['Pens', 'Books', 'Notebooks', 'Staplers', 'Folders'],
+    datasets: [
+      {
+        data: [40, 80, 65, 20, 35],
+      },
+    ],
+  };
+
   return (
-    <View style={styles.container}>
-      <View style={styles.card}>
-        <Text variant="displayMedium">Dashboard</Text>
-        <Text variant="titleMedium">Under Maintenance...</Text>
-      </View>
-    </View>
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <Card style={styles.card}>
+        <Card.Content>
+          <Text variant="titleLarge">📦 Total Supplies</Text>
+          <Text variant="displaySmall" style={styles.statValue}>{totalSupplies}</Text>
+        </Card.Content>
+      </Card>
+
+      <Card style={styles.card}>
+        <Card.Content>
+          <Text variant="titleLarge">📊 Requests Overview</Text>
+          <View style={styles.row}>
+            <View style={styles.statBox}>
+              <Text variant="titleMedium">Pending</Text>
+              <Text variant="headlineLarge">{pendingRequests}</Text>
+            </View>
+            <View style={styles.statBox}>
+              <Text variant="titleMedium">Fulfilled</Text>
+              <Text variant="headlineLarge">{fulfilledRequests}</Text>
+            </View>
+          </View>
+        </Card.Content>
+      </Card>
+
+      <Card style={styles.card}>
+        <Card.Content>
+          <Text variant="titleLarge" style={{ marginBottom: 12 }}>📈 Supply Distribution</Text>
+          <BarChart
+            data={chartData}
+            width={screenWidth - 64}
+            height={220}
+            fromZero
+            chartConfig={{
+              backgroundGradientFrom: '#222831',
+              backgroundGradientTo: '#222831',
+              color: (opacity = 1) => `rgba(0, 230, 118, ${opacity})`,
+              labelColor: () => '#fff',
+              propsForBackgroundLines: {
+                stroke: '#444',
+              },
+            }}
+            verticalLabelRotation={15}
+            style={{ borderRadius: 10 }}
+          />
+        </Card.Content>
+      </Card>
+    </ScrollView>
   );
 }
-const styles = StyleSheet.create({
 
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+const styles = StyleSheet.create({
+  scrollContainer: {
+    padding: 16,
     backgroundColor: '#222831',
   },
   card: {
-    width: '90%',
-    backgroundColor: '#222831',
-    borderRadius: 10,
-    padding: 20,
-    elevation: 5,
+    backgroundColor: '#393E46',
+    marginBottom: 20,
+    borderRadius: 12,
+    elevation: 6,
+    padding: 4,
   },
-  picker: {
-    marginBottom: 15,
-    width: '100%',
-    backgroundColor: '#222831',
-    color: '#fff'
-  },
-  input: {
-    marginBottom: 10,
-    width: '100%',
-  },
-  text: {
-    fontFamily: 'Poppins',
-    marginBottom: 10,
-  },
-  btn: {
+  statValue: {
+    color: '#00E676',
     marginTop: 10,
-    width: '80%',
   },
-  center: {
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 16,
+  },
+  statBox: {
+    width: '48%',
     alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: '#2e343e',
+    borderRadius: 8,
+    paddingVertical: 12,
   },
 });
