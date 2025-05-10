@@ -1,29 +1,30 @@
 import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useState } from 'react';
-import { useRouter } from 'expo-router';
-import { auth } from "@/firebase/config";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { useAuth } from '../context/AuthContext';
 import { Card, Text, TextInput, Button, PaperProvider } from 'react-native-paper';
 
-export default function LoginScreen(props) {
+interface LoginScreenProps {
+  props?: Record<string, unknown>;
+}
+
+export default function LoginScreen(props: LoginScreenProps): JSX.Element {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const router = useRouter(); // <-- get the router here!
+  const { login, loading } = useAuth();
 
   const handleLogin = async () => {
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      router.push('/screens/dashboard'); // <-- navigate to dashboard
-    } catch (error) {
-      Alert.alert('Login Error', error.message);
+      await login(email, password);
+    } catch (error: any) {
+      alert(`Login Failed: ${error.message}`);
     }
   };
 
   return (
     <PaperProvider>
       <View style={styles.container}>
-        <View styles={styles.center}>
+        <View style={styles.center}>
           <Text style={styles.title}>PSMS</Text>
           {/* Uncomment the icon if needed */}
           {/* <Ionicons style={styles.logo} name="folder-open-outline" size={50} color="white" /> */}
@@ -34,13 +35,12 @@ export default function LoginScreen(props) {
             <TextInput
               style={styles.input}
               value={email}
-              onChangeText={text => setEmail(text)}
+              onChangeText={(text: string) => setEmail(text)}
               mode="outlined"
               placeholder="Enter your email"
               autoCapitalize="none"
               autoCorrect={false}
               keyboardType="email-address"
-
               returnKeyType="next"
               onFocus={() => setEmail('')}
               onBlur={() => setEmail(email.trim())}
@@ -51,7 +51,7 @@ export default function LoginScreen(props) {
             <TextInput
               style={styles.input}
               value={password}
-              onChangeText={text => setPassword(text)}
+              onChangeText={(text: string) => setPassword(text)}
               mode="outlined"
               placeholder="Enter your password"
               autoCapitalize="none"
@@ -70,8 +70,6 @@ export default function LoginScreen(props) {
         </Card>
       </View>
     </PaperProvider>
-
-
   );
 }
 

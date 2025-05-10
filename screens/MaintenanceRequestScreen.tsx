@@ -11,14 +11,15 @@ import {
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 export default function ManageMaintenanceScreen() {
-  const [requests, setRequests] = useState([]);
+  const [requests, setRequests] = useState<MaintenanceRequest[]>([]);
   const [statusFilter, setStatusFilter] = useState('');
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
 
   const [form, setForm] = useState({
+    id: '', // Add id property
     item: '',
     issue: '',
     status: 'pending',
@@ -26,7 +27,7 @@ export default function ManageMaintenanceScreen() {
   });
 
   const fetchRequests = async () => {
-    let q = collection(db, 'maintenanceRequests');
+    const baseCollection = collection(db, 'maintenanceRequests');
 
     // Apply filters
     const conditions = [];
@@ -38,12 +39,16 @@ export default function ManageMaintenanceScreen() {
       conditions.push(where('dateRequested', '<=', endDate.toISOString()));
     }
 
-    if (conditions.length) {
-      q = query(q, ...conditions);
-    }
+    const q = conditions.length ? query(baseCollection, ...conditions) : baseCollection;
 
     const snapshot = await getDocs(q);
-    const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const data = snapshot.docs.map(doc => ({
+      id: doc.id,
+      item: doc.data().item || '',
+      issue: doc.data().issue || '',
+      status: doc.data().status || 'pending',
+      dateRequested: doc.data().dateRequested || new Date().toISOString(),
+    }));
     setRequests(data);
   };
 
@@ -54,27 +59,43 @@ export default function ManageMaintenanceScreen() {
   const handleCreate = async () => {
     if (!form.item || !form.issue) return Alert.alert('Fill all fields');
     await addDoc(collection(db, 'maintenanceRequests'), form);
-    setForm({ item: '', issue: '', status: 'pending', dateRequested: new Date().toISOString() });
+    setForm({ id: '', item: '', issue: '', status: 'pending', dateRequested: new Date().toISOString() });
     fetchRequests();
   };
 
-  const handleUpdate = async (id) => {
+  const handleUpdate = async (id: string) => {
     await updateDoc(doc(db, 'maintenanceRequests', id), form);
-    setForm({ item: '', issue: '', status: 'pending', dateRequested: new Date().toISOString() });
+    setForm({ id: '', item: '', issue: '', status: 'pending', dateRequested: new Date().toISOString() });
     fetchRequests();
   };
 
-  const handleDelete = async (id) => {
+  interface MaintenanceRequest {
+    id?: string;
+    item: string;
+    issue: string;
+    status: string;
+    dateRequested: string;
+  }
+
+  const handleDelete = async (id: string): Promise<void> => {
     await deleteDoc(doc(db, 'maintenanceRequests', id));
     fetchRequests();
   };
 
-  const handleEdit = (item) => {
-    setForm(item);
+  interface EditItem {
+    id?: string;
+    item: string;
+    issue: string;
+    status: string;
+    dateRequested: string;
+  }
+
+  const handleEdit = (item: EditItem): void => {
+    setForm({ ...item, id: item.id || '' });
   };
 
   return (
-    <View style={styles.container}>   
+    <View style={styles.container}>
       {/* Form */}
       <TextInput
         placeholder="Item"
@@ -150,7 +171,7 @@ export default function ManageMaintenanceScreen() {
       {/* List */}
       <FlatList
         data={requests}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.id || ''}
         renderItem={({ item }) => (
           <View style={styles.card}>
             <Text>Item: {item.item}</Text>
@@ -159,7 +180,7 @@ export default function ManageMaintenanceScreen() {
             <Text>Date: {new Date(item.dateRequested).toDateString()}</Text>
             <View style={styles.actions}>
               <Button title="Edit" onPress={() => handleEdit(item)} />
-              <Button title="Delete" color="red" onPress={() => handleDelete(item.id)} />
+              <Button title="Delete" color="red" onPress={() => item.id && handleDelete(item.id)} />
             </View>
           </View>
         )}

@@ -7,16 +7,25 @@ import { useLocalSearchParams, router } from 'expo-router';
 import Toast from 'react-native-toast-message';
 import { Picker } from '@react-native-picker/picker';
 
-export default function EditSupplyScreen(props) {
-  const { id } = useLocalSearchParams();
-  const [supply, setSupply] = useState(null);
-  const [supplyName, setSupplyName] = useState('');
-  const [quantity, setQuantity] = useState('');
-  const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('');
-  const [loading, setLoading] = useState(true);
+interface Supply {
+  supplyName: string;
+  quantity: string;
+  description: string;
+  category: string;
+}
 
-  const itemValues = [
+interface EditSupplyScreenProps {}
+
+export default function EditSupplyScreen(props: EditSupplyScreenProps) {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const [supply, setSupply] = useState<Supply | null>(null);
+  const [supplyName, setSupplyName] = useState<string>('');
+  const [quantity, setQuantity] = useState<string>('');
+  const [description, setDescription] = useState<string>('');
+  const [category, setCategory] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(true);
+
+  const itemValues: string[] = [
     'Office Supplies',
     'Electronics',
     'Furniture',
@@ -30,7 +39,7 @@ export default function EditSupplyScreen(props) {
         const docRef = doc(db, 'supplies', id);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          const supplyData = docSnap.data();
+          const supplyData = docSnap.data() as Supply;
           setSupply(supplyData);
           setSupplyName(supplyData.supplyName);
           setQuantity(supplyData.quantity);
@@ -66,7 +75,6 @@ export default function EditSupplyScreen(props) {
         category,
       });
 
-
       Toast.show({ type: 'success', text1: 'Supply updated successfully!' });
       router.replace('/supplies/viewSupplyScreen'); // Navigate back to supplies list
     } catch (error) {
@@ -86,8 +94,8 @@ export default function EditSupplyScreen(props) {
   }
 
   return (
-    <View style={[globalStyles.card, { marginTop: 150}]}>
-      <Text style={[globalStyles.title, { fontSize: 24, marginBottom: 20 }]}>Edit Supply</Text>
+    <View style={[globalStyles.card, { marginTop: 150 }]}>
+      <Text style={[globalStyles.header, { fontSize: 24, marginBottom: 20 }]}>Edit Supply</Text>
 
       <Picker
         selectedValue={category}
@@ -119,7 +127,6 @@ export default function EditSupplyScreen(props) {
         value={description}
         onChangeText={setDescription}
       />
-
 
       <TouchableOpacity style={globalStyles.button} onPress={handleUpdateSupply}>
         <Text style={globalStyles.buttonText}>Update</Text>

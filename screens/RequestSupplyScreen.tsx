@@ -15,7 +15,14 @@ import { Button, Card, TextInput } from 'react-native-paper';
 
 export default function RequestSupplyScreen() {
   const router = useRouter();
-  const [supplies, setSupplies] = useState([]);
+  interface Supply {
+    id: string;
+    supplyName: string;
+    category: string;
+    quantity: number;
+  }
+
+  const [supplies, setSupplies] = useState<Supply[]>([]);
   const [selectedSupplyId, setSelectedSupplyId] = useState('');
   const [quantity, setQuantity] = useState('');
   const [requester, setRequester] = useState('');
@@ -26,7 +33,10 @@ export default function RequestSupplyScreen() {
     const fetchSupplies = async () => {
       const snapshot = await getDocs(collection(db, 'supplies'));
       const availableSupplies = snapshot.docs
-        .map(doc => ({ id: doc.id, ...doc.data() }))
+        .map(doc => {
+          const { id, ...data } = doc.data() as Supply;
+          return { id: doc.id, ...data };
+        })
         .filter(item => item.quantity > 0);
       setSupplies(availableSupplies);
     };
@@ -66,7 +76,7 @@ export default function RequestSupplyScreen() {
       Alert.alert('Success', 'Request submitted ✅');
       router.back();
     } catch (error) {
-      console.error('Error:', error.message);
+      console.error('Error:', (error as Error).message);
       Alert.alert('Error', 'Failed to submit request.');
     }
   };
@@ -84,7 +94,6 @@ export default function RequestSupplyScreen() {
             dropdownIconColor="#fff"
             dropdownIconRippleColor="#fff"
             itemStyle={{ color: '#fff' }}
-            selectedItemStyle={{ color: '#fff' }}
           >
             <Picker.Item label="Select Supply" value="" />
             {supplies.map((supply) => (

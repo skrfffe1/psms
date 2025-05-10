@@ -10,19 +10,24 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
 export default function SuppliesList() {
-  const [supplies, setSupplies] = useState([]);
+  const [supplies, setSupplies] = useState<{ id: string; supplyName: string; quantity: number; category: string }[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredSupplies, setFilteredSupplies] = useState([]);
+  const [filteredSupplies, setFilteredSupplies] = useState<{ id: string; supplyName: string; quantity: number; category: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   const fetchSupplies = async () => {
     try {
       const querySnapshot = await getDocs(collection(db, 'supplies'));
-      const suppliesData = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      const suppliesData = querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          supplyName: data.supplyName || '',
+          quantity: data.quantity || 0,
+          category: data.category || '',
+        };
+      });
       setSupplies(suppliesData);
       setFilteredSupplies(suppliesData);
       setLoading(false);
@@ -41,7 +46,14 @@ export default function SuppliesList() {
     setRefreshing(false);
   };
 
-  const handleDelete = async (id) => {
+  interface Supply {
+    id: string;
+    supplyName: string;
+    quantity: number;
+    category: string;
+  }
+
+  const handleDelete = async (id: string): Promise<void> => {
     try {
       await deleteDoc(doc(db, 'supplies', id));
       Alert.alert('Deleted!', 'Supply successfully deleted.');
@@ -51,11 +63,15 @@ export default function SuppliesList() {
     }
   };
 
-  const handleLongPress = (item) => {
+  const handleLongPress = (item: { id: string; supplyName: string; quantity: number; category: string }): void => {
     router.push({ pathname: '/supplies/editSupplyScreen', params: { id: item.id } });
   };
 
-  const handleSearch = (query) => {
+  interface SearchQuery {
+    query: string;
+  }
+
+  const handleSearch = (query: SearchQuery['query']): void => {
     setSearchQuery(query);
     if (query === '') {
       setFilteredSupplies(supplies);
@@ -67,7 +83,7 @@ export default function SuppliesList() {
     }
   };
 
-  const renderSupplyItem = ({ item }) => (
+  const renderSupplyItem = ({ item }: { item: Supply }) => (
     <TouchableOpacity
       style={{
         backgroundColor: '#f9f9f9',
@@ -96,9 +112,9 @@ export default function SuppliesList() {
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
         <Ionicons name="cube-outline" size={32} color="#007AFF" style={{ marginRight: 16 }} />
         <View style={{ flex: 1 }}>
-        <Text style={[globalStyles.title, { fontSize: 18, marginBottom: 4 }]}>{item.supplyName}</Text>
-          <Text style={[globalStyles.text, { color: '#555' }]}>Quantity: {item.quantity}</Text>
-          <Text style={[globalStyles.text, { color: '#555' }]}>Category: {item.category}</Text>
+        <Text style={[globalStyles.header, { fontSize: 18, marginBottom: 4 }]}>{item.supplyName}</Text>
+          <Text style={{ color: '#555', fontSize: 14, lineHeight: 20 }}>Quantity: {item.quantity}</Text>
+          <Text style={{ color: '#555', fontSize: 14, lineHeight: 20 }}>Category: {item.category}</Text>
         </View>
       </View>
     </TouchableOpacity>

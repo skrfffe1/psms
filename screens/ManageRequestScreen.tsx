@@ -11,10 +11,20 @@ import { collection, getDocs, updateDoc, doc, getDoc, addDoc, orderBy, query } f
 import { Button, Card, TextInput } from 'react-native-paper';
 import { ScrollView } from 'react-native-gesture-handler';
 
+interface Request {
+  id: string;
+  supplyName: string;
+  supplyId: string; // Added supplyId property
+  quantity: number;
+  requester: string;
+  reason: string;
+  status: string;
+}
+
 export default function ManageRequestsScreen() {
-  const [requests, setRequests] = useState([]);
+  const [requests, setRequests] = useState<Request[]>([]);
   const [loading, setLoading] = useState(true);
-  const fadeAnims = useRef({}); // Store Animated.Value refs for each request
+  const fadeAnims = useRef<{ [key: string]: Animated.Value }>({}); // Store Animated.Value refs for each request
 
   useEffect(() => {
     fetchRequests();
@@ -29,28 +39,54 @@ export default function ManageRequestsScreen() {
       const requestsData = querySnapshot.docs.map((document) => {
         const id = document.id;
         fadeAnims.current[id] = new Animated.Value(1);
+        const data = document.data();
         return {
           id,
-          ...document.data(),
+          supplyName: data.supplyName || '',
+          supplyId: data.supplyId || '',
+          quantity: data.quantity || 0,
+          requester: data.requester || '',
+          reason: data.reason || '',
+          status: data.status || 'pending',
         };
       });
 
       setRequests(requestsData);
       setLoading(false);
     } catch (error) {
-      console.error('Error fetching requests:', error.message);
+      if (error instanceof Error) {
+        console.error('Error fetching requests:', error.message);
+      } else {
+        console.error('Error fetching requests:', error);
+      }
       setLoading(false);
     }
   };
 
-  const handleStatusChange = async (supplyName, requestId, supplyId, quantity, newStatus) => {
+  interface HandleStatusChangeParams {
+    supplyName: string;
+    requestId: string;
+    supplyId: string;
+    quantity: number;
+    newStatus: 'approved' | 'rejected';
+  }
 
+  const handleStatusChange = async ({
+    supplyName,
+    requestId,
+    supplyId,
+    quantity,
+    newStatus,
+  }: HandleStatusChangeParams): Promise<void> => {
     try {
       const supplyRef = doc(db, 'supplies', supplyId);
       const supplySnap = await getDoc(supplyRef);
       const requestRef = doc(db, 'requests', requestId);
       const requestSnap = await getDoc(requestRef);
       const requestData = requestSnap.data();
+      if (!requestData) {
+        throw new Error('Request data is undefined');
+      }
 
       if (supplySnap.exists()) {
         const currentQty = supplySnap.data().quantity;
@@ -100,13 +136,17 @@ export default function ManageRequestsScreen() {
           duration: 500,
           useNativeDriver: true,
         }).start(() => {
-          setRequests(prev => prev.filter(item => item.id !== requestId));
+          setRequests((prev) => prev.filter((item) => item.id !== requestId));
         });
 
         Alert.alert(newStatus === 'approved' ? 'Approved' : 'Rejected', `Request ${newStatus}`);
       }
     } catch (error) {
-      console.error(`Error handling ${newStatus}:`, error.message);
+      if (error instanceof Error) {
+        console.error(`Error handling ${newStatus}:`, error.message);
+      } else {
+        console.error(`Error handling ${newStatus}:`, error);
+      }
       Alert.alert('Error', 'Something went wrong');
     }
   };
@@ -118,16 +158,15 @@ export default function ManageRequestsScreen() {
       </View>
     );
   }
+  const renderItem = ({ item }: { item: Request }) => {
+    if (requests.length === 0) {
+      return (
+        <View style={globalStyles.container}>
+          <Text style={globalStyles.header}>No Requests Found</Text>
+        </View>
+      );
+    }
 
-  if (requests.length === 0) {
-    return (
-      <View style={globalStyles.container}>
-        <Text style={globalStyles.header}>No Requests Found</Text>
-      </View>
-    );
-  }
-
-  const renderItem = ({ item }) => {
     const fadeAnim = fadeAnims.current[item.id] || new Animated.Value(1); // fallback safety
 
     return (
@@ -142,13 +181,13 @@ export default function ManageRequestsScreen() {
           <View style={styles.actionsContainer}>
             <TouchableOpacity
               style={styles.approveButton}
-              onPress={() => handleStatusChange(item.supplyName, item.id, item.supplyId, item.quantity, 'approved')}
+              onPress={() => handleStatusChange({ supplyName: item.supplyName, requestId: item.id, supplyId: item.supplyId, quantity: item.quantity, newStatus: 'approved' })}
             >
               <Text style={globalStyles.buttonText}>Approve</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.rejectButton}
-              onPress={() => handleStatusChange(item.supplyName, item.id, item.supplyId, item.quantity, 'rejected')}
+              onPress={() => handleStatusChange({ supplyName: item.supplyName, requestId: item.id, supplyId: item.supplyId, quantity: item.quantity, newStatus: 'rejected' })}
             >
               <Text style={globalStyles.buttonText}>Reject</Text>
             </TouchableOpacity>
@@ -160,16 +199,16 @@ export default function ManageRequestsScreen() {
 
   return (
     <View style={globalStyles.container}>
-      
-          
-          <FlatList
-            data={requests}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.id}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 20 }}
-          />
-        
+
+
+      <FlatList
+        data={requests}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 20 }}
+      />
+
     </View>
   );
 }
