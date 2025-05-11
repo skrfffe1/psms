@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
-import { globalStyles } from '@/styles/global';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { db } from '@/firebase/config';
-import { useLocalSearchParams, router } from 'expo-router';
-import Toast from 'react-native-toast-message';
+import { View, TextInput, Button, StyleSheet, Text } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '@/types/navigation';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { db } from '../firebase/config';
+import Toast from 'react-native-toast-message';
 
 interface Supply {
   supplyName: string;
@@ -14,17 +15,21 @@ interface Supply {
   category: string;
 }
 
-interface EditSupplyScreenProps {}
+interface EditSupplyScreenProps {
+  navigation: StackNavigationProp<RootStackParamList, 'EditSupply'>;
+  setRefreshSupplyList: React.Dispatch<React.SetStateAction<boolean>>;
+}
 
-export default function EditSupplyScreen(props: EditSupplyScreenProps) {
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const [supply, setSupply] = useState<Supply | null>(null);
+type EditSupplyRouteProp = RouteProp<RootStackParamList, 'EditSupply'>;
+
+const EditSupplyScreen: React.FC<EditSupplyScreenProps> = ({ navigation }) => {
+  const route = useRoute<EditSupplyRouteProp>();
+  const { id } = route.params;
   const [supplyName, setSupplyName] = useState<string>('');
   const [quantity, setQuantity] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const [category, setCategory] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(true);
-
+  const [loading, setLoading] = useState<boolean>(false);
   const itemValues: string[] = [
     'Office Supplies',
     'Electronics',
@@ -40,14 +45,13 @@ export default function EditSupplyScreen(props: EditSupplyScreenProps) {
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           const supplyData = docSnap.data() as Supply;
-          setSupply(supplyData);
           setSupplyName(supplyData.supplyName);
           setQuantity(supplyData.quantity);
           setCategory(supplyData.category || '');
           setDescription(supplyData.description || '');
         } else {
           Toast.show({ type: 'error', text1: 'Supply not found.' });
-          router.back();
+          navigation.goBack();
         }
       } catch (error) {
         console.error('Error fetching supply:', error);
@@ -57,7 +61,7 @@ export default function EditSupplyScreen(props: EditSupplyScreenProps) {
       }
     };
     fetchSupply();
-  }, [id]);
+  }, [id, navigation]);
 
   const handleUpdateSupply = async () => {
     if (!supplyName || !quantity || !description || !category) {
@@ -76,7 +80,7 @@ export default function EditSupplyScreen(props: EditSupplyScreenProps) {
       });
 
       Toast.show({ type: 'success', text1: 'Supply updated successfully!' });
-      router.replace('/supplies/viewSupplyScreen'); // Navigate back to supplies list
+      navigation.goBack(); // Use goBack to return to ViewSupplyScreen
     } catch (error) {
       console.error('Error updating supply:', error);
       Toast.show({ type: 'error', text1: 'Failed to update supply.' });
@@ -87,64 +91,88 @@ export default function EditSupplyScreen(props: EditSupplyScreenProps) {
 
   if (loading) {
     return (
-      <View style={globalStyles.container}>
-        <ActivityIndicator size="large" color="#007AFF" />
+      <View style={styles.loadingContainer}>
+        <Text>Loading...</Text>
       </View>
     );
   }
 
   return (
-    <View style={[globalStyles.card, { marginTop: 150 }]}>
-      <Text style={[globalStyles.header, { fontSize: 24, marginBottom: 20 }]}>Edit Supply</Text>
+    <View style={styles.container}>
+      <Text style={styles.label}>Supply Name</Text>
+      <TextInput
+        style={styles.input}
+        value={supplyName}
+        onChangeText={setSupplyName}
+        placeholder="Enter supply name"
+      />
 
+      <Text style={styles.label}>Quantity</Text>
+      <TextInput
+        style={styles.input}
+        value={quantity}
+        onChangeText={setQuantity}
+        placeholder="Enter quantity"
+        keyboardType="numeric"
+      />
+
+      <Text style={styles.label}>Description</Text>
+      <TextInput
+        style={styles.input}
+        value={description}
+        onChangeText={setDescription}
+        placeholder="Enter description"
+      />
+
+      <Text style={styles.label}>Category</Text>
       <Picker
         selectedValue={category}
+        style={styles.picker}
         onValueChange={(itemValue) => setCategory(itemValue)}
-        style={[styles.input, { marginBottom: 15 }]}
       >
-        <Picker.Item label="Select Category..." value="" />
-        {itemValues.map((item, index) => (
-          <Picker.Item key={index} label={item} value={item} />
+        {itemValues.map((item) => (
+          <Picker.Item key={item} label={item} value={item} />
         ))}
       </Picker>
 
-      <TextInput
-        style={[globalStyles.input, styles.input]}
-        placeholder="Supply Name"
-        value={supplyName}
-        onChangeText={setSupplyName}
-      />
-      <TextInput
-        style={[globalStyles.input, styles.input]}
-        placeholder="Quantity"
-        value={quantity}
-        keyboardType="numeric"
-        onChangeText={setQuantity}
-      />
-      <TextInput
-        style={[globalStyles.input, styles.input]}
-        placeholder="Description"
-        value={description}
-        onChangeText={setDescription}
-      />
-
-      <TouchableOpacity style={globalStyles.button} onPress={handleUpdateSupply}>
-        <Text style={globalStyles.buttonText}>Update</Text>
-      </TouchableOpacity>
-      <Toast />
+      <Button title="Update Supply" onPress={handleUpdateSupply} disabled={loading} />
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  input: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    marginBottom: 10,
-    borderColor: '#ccc',
-    borderWidth: 1,
+  container: {
+    flex: 1,
+    padding: 16,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  label: {
     fontSize: 16,
+    fontWeight: 'bold',
+    marginTop: 8,
+  },
+  input: {
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    marginTop: 4,
+    marginBottom: 12,
+  },
+  picker: {
+    height: 50,
+    width: '100%',
+    borderColor: 'gray',
+    borderWidth: 1,
+    borderRadius: 8,
+    marginTop: 4,
+    marginBottom: 12,
   },
 });
+
+export default EditSupplyScreen;

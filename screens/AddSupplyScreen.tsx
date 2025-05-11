@@ -4,12 +4,16 @@ import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { globalStyles } from '@/styles/global';
 import { collection, addDoc } from 'firebase/firestore';
 import { db } from '@/firebase/config';
-import { router } from 'expo-router';
+import {  useNavigation } from '@react-navigation/native'; // Changed
 import Toast from 'react-native-toast-message';
 import { Button, Card, TextInput } from 'react-native-paper';
 import { Picker } from '@react-native-picker/picker';
+import { StackNavigationProp } from '@react-navigation/stack'; //Added
+import { RootStackParamList } from '@/types/navigation'; //Added
 
-interface AddSupplyScreenProps {}
+interface AddSupplyScreenProps {
+  navigation: StackNavigationProp<RootStackParamList, 'AddSupply'>; // Added navigation
+}
 
 interface Supply {
   supplyName: string;
@@ -19,7 +23,7 @@ interface Supply {
   createdAt: Date;
 }
 
-export default function AddSupplyScreen(props: AddSupplyScreenProps): JSX.Element {
+export default function AddSupplyScreen({navigation}: AddSupplyScreenProps): JSX.Element { // Added navigation prop
   const [supplyName, setSupplyName] = useState<string>('');
   const [quantity, setQuantity] = useState<string>('');
   const [description, setDescription] = useState<string>('');
@@ -57,7 +61,7 @@ export default function AddSupplyScreen(props: AddSupplyScreenProps): JSX.Elemen
       await addDoc(collection(db, 'supplies'), newSupply);
 
       Toast.show({ type: 'success', text1: 'Supply added successfully!' });
-      router.push('/supplies/viewSupplyScreen'); // Navigate back to supplies list
+      navigation.goBack(); // changed
     } catch (error) {
       console.error('Error adding supply:', error);
       Toast.show({ type: 'error', text1: 'Error adding supply.' });
@@ -119,7 +123,7 @@ export default function AddSupplyScreen(props: AddSupplyScreenProps): JSX.Elemen
             onFocus={() => setQuantity('')}
             onBlur={() => setQuantity(quantity.trim())}
             label="Quantity"
-            secureTextEntry
+            keyboardType="numeric" //added
             right={<TextInput.Icon icon="eye" />}
           />
           <TextInput

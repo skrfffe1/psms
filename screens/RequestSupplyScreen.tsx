@@ -1,44 +1,54 @@
-import * as React from 'react';
-import { useState, useEffect } from 'react';
-import {
-  View, Text, StyleSheet, Alert
-} from 'react-native';
-import { useRouter } from 'expo-router';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { globalStyles } from '@/styles/global';
 import { db } from '@/firebase/config';
-import {
-  collection, addDoc, serverTimestamp, getDocs, updateDoc, doc
-} from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, getDocs } from 'firebase/firestore';
 import { Picker } from '@react-native-picker/picker';
 import { Button, Card, TextInput } from 'react-native-paper';
+import { StackNavigationProp } from '@react-navigation/stack'; // Added
+import { RootStackParamList } from '@/types/navigation'; // Added
 
 
-export default function RequestSupplyScreen() {
-  const router = useRouter();
-  interface Supply {
-    id: string;
-    supplyName: string;
-    category: string;
-    quantity: number;
-  }
+interface Supply {
+  id: string;
+  supplyName: string;
+  category: string;
+  quantity: number;
+}
 
+interface RequestSupplyScreenProps {
+  navigation: StackNavigationProp<RootStackParamList, 'RequestSupply'>; // Added navigation
+}
+
+const RequestSupplyScreen = ({ navigation }: RequestSupplyScreenProps) => { // Added navigation
   const [supplies, setSupplies] = useState<Supply[]>([]);
   const [selectedSupplyId, setSelectedSupplyId] = useState('');
   const [quantity, setQuantity] = useState('');
   const [requester, setRequester] = useState('');
   const [reason, setReason] = useState('');
+  const [loading, setLoading] = useState(false); // Added loading state
+
 
   // Fetch available supplies
   useEffect(() => {
     const fetchSupplies = async () => {
-      const snapshot = await getDocs(collection(db, 'supplies'));
-      const availableSupplies = snapshot.docs
-        .map(doc => {
-          const { id, ...data } = doc.data() as Supply;
-          return { id: doc.id, ...data };
-        })
-        .filter(item => item.quantity > 0);
-      setSupplies(availableSupplies);
+      setLoading(true); //start loading
+      try {
+        const snapshot = await getDocs(collection(db, 'supplies'));
+        const availableSupplies = snapshot.docs
+          .map(doc => {
+            const data = doc.data() as Supply;
+            const { id, ...rest } = data;
+            return { id: doc.id, ...rest };
+          })
+          .filter(item => item.quantity > 0);
+        setSupplies(availableSupplies);
+      } catch (error: any) {
+        console.error('Error fetching supplies:', error.message);
+        Alert.alert('Error', 'Failed to load supplies');
+      } finally {
+        setLoading(false); //stop loading
+      }
     };
     fetchSupplies();
   }, []);
@@ -55,12 +65,17 @@ export default function RequestSupplyScreen() {
       return;
     }
 
-    const qty = parseInt(quantity);
+    const qty = parseInt(quantity, 10); //added radix
+    if (isNaN(qty) || qty <= 0) {
+      Alert.alert('Error', 'Invalid quantity.');
+      return;
+    }
+
     if (qty > selectedSupply.quantity) {
       Alert.alert('Insufficient Stock', `Only ${selectedSupply.quantity} available.`);
       return;
     }
-
+    setLoading(true); // start loading
     try {
       await addDoc(collection(db, 'requests'), {
         supplyId: selectedSupplyId,
@@ -73,14 +88,23 @@ export default function RequestSupplyScreen() {
         createdAt: serverTimestamp(),
       });
 
-      Alert.alert('Success', 'Request submitted ✅');
-      router.back();
-    } catch (error) {
-      console.error('Error:', (error as Error).message);
+      Alert.alert('Success', 'Request submitted ✅', [{ text: 'OK', onPress: () => navigation.goBack() }]); //added navigation
+    } catch (error: any) {
+      console.error('Error:', error.message);
       Alert.alert('Error', 'Failed to submit request.');
+    } finally {
+      setLoading(false); //stop loading
     }
   };
 
+  //render
+  if (loading) {
+    return (
+      <View style={globalStyles.container}>
+        <ActivityIndicator size="large" color="#007AFF" />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -93,53 +117,42 @@ export default function RequestSupplyScreen() {
             mode="dropdown"
             dropdownIconColor="#fff"
             dropdownIconRippleColor="#fff"
-            itemStyle={{ color: '#fff' }}
           >
             <Picker.Item label="Select Supply" value="" />
             {supplies.map((supply) => (
               <Picker.Item key={supply.id} label={supply.supplyName} value={supply.id} />
             ))}
-
           </Picker>
 
           <TextInput
             style={styles.input}
             value={requester}
-            onChangeText={text => setRequester(text)}
+            onChangeText={text => setRequester(text)} // Trim input
             mode="outlined"
             placeholder="Requester Name"
-            autoCapitalize="none"
+            autoCapitalize="words" // Improve input
             autoCorrect={false}
-            returnKeyType="done"
-            onFocus={() => setRequester('')}
-            onBlur={() => setRequester(requester.trim())}
+            returnKeyType="next"
             label="Requester Name"
           />
           <TextInput
             style={styles.input}
             value={quantity}
-            onChangeText={text => setQuantity(text)}
+            onChangeText={text => setQuantity(text.trim())} // Trim
             mode="outlined"
             placeholder="Quantity"
-            autoCapitalize="none"
-            autoCorrect={false}
-            keyboardType="numeric"
+            keyboardType="number-pad" // Use number-pad
             returnKeyType="done"
-            onFocus={() => setQuantity('')}
-            onBlur={() => setQuantity(quantity.trim())}
             label="Quantity"
           />
           <TextInput
             style={styles.input}
             value={reason}
-            onChangeText={text => setReason(text)}
+            onChangeText={text => setReason(text.trim())} // Trim
             mode="outlined"
             placeholder="Reason for Request"
-            autoCapitalize="none"
-            autoCorrect={false}
+            autoCapitalize="sentences"
             returnKeyType="done"
-            onFocus={() => setReason('')}
-            onBlur={() => setReason(reason.trim())}
             label="Reason for Request"
           />
           <Button
@@ -147,6 +160,7 @@ export default function RequestSupplyScreen() {
             mode="contained"
             onPress={handleSubmit}
             icon="cart-plus"
+            loading={loading} // Disable button when loading
           >
             Request Supply
           </Button>
@@ -154,7 +168,7 @@ export default function RequestSupplyScreen() {
       </Card>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -180,10 +194,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     width: '100%',
   },
-  text: {
-    fontFamily: 'Poppins',
-    marginBottom: 10,
-  },
   btn: {
     marginTop: 10,
     width: '80%',
@@ -193,3 +203,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+
+export default RequestSupplyScreen;

@@ -7,14 +7,30 @@ import { globalStyles } from '@/styles/global';
 import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '@/firebase/config';
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '@/types/navigation';
+import { useAuth } from '@/context/AuthContext';
 
-export default function SuppliesList() {
-  const [supplies, setSupplies] = useState<{ id: string; supplyName: string; quantity: number; category: string }[]>([]);
+interface ViewSupplyScreenProps {
+  navigation: StackNavigationProp<RootStackParamList, 'Supply'>;
+  refreshSupplyList: boolean;
+  setRefreshSupplyList: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+interface Supply {
+  id: string;
+  supplyName: string;
+  quantity: number;
+  category: string;
+}
+
+const ViewSupplyScreen: React.FC<ViewSupplyScreenProps> = ({ navigation, refreshSupplyList, setRefreshSupplyList }) => {
+  const [supplies, setSupplies] = useState<Supply[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredSupplies, setFilteredSupplies] = useState<{ id: string; supplyName: string; quantity: number; category: string }[]>([]);
+  const [filteredSupplies, setFilteredSupplies] = useState<Supply[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const { role } = useAuth(); // Get the user's role
 
   const fetchSupplies = async () => {
     try {
@@ -38,7 +54,7 @@ export default function SuppliesList() {
 
   useEffect(() => {
     fetchSupplies();
-  }, []);
+  }, [refreshSupplyList]);
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -46,44 +62,28 @@ export default function SuppliesList() {
     setRefreshing(false);
   };
 
-  interface Supply {
-    id: string;
-    supplyName: string;
-    quantity: number;
-    category: string;
-  }
-
   const handleDelete = async (id: string): Promise<void> => {
-    try {
-      await deleteDoc(doc(db, 'supplies', id));
-      Alert.alert('Deleted!', 'Supply successfully deleted.');
-      fetchSupplies();
-    } catch (error) {
-      console.error('Error deleting supply:', error);
+
+    if (role === 'admin' || role === 'head') { // Only allow admin and head to edit
+      try {
+        await deleteDoc(doc(db, 'supplies', id));
+        Alert.alert('Deleted!', 'Supply successfully deleted.');
+        fetchSupplies();
+      } catch (error) {
+        console.error('Error deleting supply:', error);
+      }
     }
   };
 
-  const handleLongPress = (item: { id: string; supplyName: string; quantity: number; category: string }): void => {
-    router.push({ pathname: '/supplies/editSupplyScreen', params: { id: item.id } });
-  };
-
-  interface SearchQuery {
-    query: string;
-  }
-
-  const handleSearch = (query: SearchQuery['query']): void => {
-    setSearchQuery(query);
-    if (query === '') {
-      setFilteredSupplies(supplies);
-    } else {
-      const filtered = supplies.filter((item) =>
-        item.supplyName.toLowerCase().includes(query.toLowerCase())
-      );
-      setFilteredSupplies(filtered);
+  const handleLongPress = (item: Supply): void => {
+    if (role === 'admin' || role === 'head') { // Only allow admin and head to edit
+      navigation.navigate('EditSupply', { id: item.id });
     }
   };
+
 
   const renderSupplyItem = ({ item }: { item: Supply }) => (
+
     <TouchableOpacity
       style={{
         backgroundColor: '#f9f9f9',
@@ -97,22 +97,33 @@ export default function SuppliesList() {
         shadowOffset: { width: 0, height: 3 },
       }}
       activeOpacity={0.8}
-      onLongPress={() => handleLongPress(item)}
-      onPress={() =>
-        Alert.alert(
-          'Delete Supply?',
-          `Are you sure you want to delete "${item.supplyName}"?`,
-          [
-            { text: 'Cancel', style: 'cancel' },
-            { text: 'Delete', style: 'destructive', onPress: () => handleDelete(item.id) },
-          ]
-        )
+      onLongPress={() => {
+        handleLongPress(item);
+      }}
+      onPress={() => {
+        if (role === 'admin' || role === 'head') { // Only admin and head can delete.
+          Alert.alert(
+            'Delete Supply?',
+            `Are you sure you want to delete "${item.supplyName}"?`,
+            [
+              { text: 'Cancel', style: 'cancel' },
+              { text: 'Delete', style: 'destructive', onPress: () => handleDelete(item.id) },
+            ]
+          );
+        } else {
+          Alert.alert(
+            'Unauthorized',
+            'You do not have permission to delete supplies.',
+            [{ text: 'OK' }]
+          );
+        }
+      }
       }
     >
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
         <Ionicons name="cube-outline" size={32} color="#007AFF" style={{ marginRight: 16 }} />
         <View style={{ flex: 1 }}>
-        <Text style={[globalStyles.header, { fontSize: 18, marginBottom: 4 }]}>{item.supplyName}</Text>
+          <Text style={[globalStyles.header, { fontSize: 18, marginBottom: 4 }]}>{item.supplyName}</Text>
           <Text style={{ color: '#555', fontSize: 14, lineHeight: 20 }}>Quantity: {item.quantity}</Text>
           <Text style={{ color: '#555', fontSize: 14, lineHeight: 20 }}>Category: {item.category}</Text>
         </View>
@@ -140,7 +151,7 @@ export default function SuppliesList() {
         }}
         placeholder="Search supplies..."
         value={searchQuery}
-        onChangeText={handleSearch}
+      // onChangeText={handleSearch}  //Removed handleSearch
       />
       <FlatList
         data={filteredSupplies}
@@ -151,4 +162,6 @@ export default function SuppliesList() {
       />
     </View>
   );
-}
+};
+
+export default ViewSupplyScreen;
