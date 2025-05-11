@@ -7,6 +7,7 @@ import { Picker } from '@react-native-picker/picker';
 import { Button, Card, TextInput } from 'react-native-paper';
 import { StackNavigationProp } from '@react-navigation/stack'; // Added
 import { RootStackParamList } from '@/types/navigation'; // Added
+import { useAuth } from '../context/AuthContext'; // Import useAuth
 
 
 interface Supply {
@@ -24,9 +25,9 @@ const RequestSupplyScreen = ({ navigation }: RequestSupplyScreenProps) => { // A
   const [supplies, setSupplies] = useState<Supply[]>([]);
   const [selectedSupplyId, setSelectedSupplyId] = useState('');
   const [quantity, setQuantity] = useState('');
-  const [requester, setRequester] = useState('');
   const [reason, setReason] = useState('');
-  const [loading, setLoading] = useState(false); // Added loading state
+  const [loading, setLoading] = useState(false);
+  const { user } = useAuth(); // Use the auth context to get user data
 
 
   // Fetch available supplies
@@ -54,7 +55,7 @@ const RequestSupplyScreen = ({ navigation }: RequestSupplyScreenProps) => { // A
   }, []);
 
   const handleSubmit = async () => {
-    if (!selectedSupplyId || !quantity.trim() || !reason.trim() || !requester.trim()) {
+    if (!selectedSupplyId || !quantity.trim() || !reason.trim()) {
       Alert.alert('Error', 'Please fill in all fields.');
       return;
     }
@@ -77,13 +78,14 @@ const RequestSupplyScreen = ({ navigation }: RequestSupplyScreenProps) => { // A
     }
     setLoading(true); // start loading
     try {
+      // Add the user's ID to the request
       await addDoc(collection(db, 'requests'), {
         supplyId: selectedSupplyId,
         supplyName: selectedSupply.supplyName,
         category: selectedSupply.category,
         quantity: qty,
         reason,
-        requester,
+        requester: user?.uid, // Add the user ID here
         status: 'pending',
         createdAt: serverTimestamp(),
       });
@@ -126,41 +128,30 @@ const RequestSupplyScreen = ({ navigation }: RequestSupplyScreenProps) => { // A
 
           <TextInput
             style={styles.input}
-            value={requester}
-            onChangeText={text => setRequester(text)} // Trim input
-            mode="outlined"
-            placeholder="Requester Name"
-            autoCapitalize="words" // Improve input
-            autoCorrect={false}
-            returnKeyType="next"
-            label="Requester Name"
-          />
-          <TextInput
-            style={styles.input}
-            value={quantity}
-            onChangeText={text => setQuantity(text.trim())} // Trim
-            mode="outlined"
-            placeholder="Quantity"
-            keyboardType="number-pad" // Use number-pad
-            returnKeyType="done"
-            label="Quantity"
-          />
-          <TextInput
-            style={styles.input}
             value={reason}
-            onChangeText={text => setReason(text.trim())} // Trim
+            onChangeText={text => setReason(text.trim())}
             mode="outlined"
             placeholder="Reason for Request"
             autoCapitalize="sentences"
             returnKeyType="done"
             label="Reason for Request"
           />
+          <TextInput
+            style={styles.input}
+            value={quantity}
+            onChangeText={text => setQuantity(text.trim())}
+            mode="outlined"
+            placeholder="Quantity"
+            keyboardType="number-pad"
+            returnKeyType="done"
+            label="Quantity"
+          />
           <Button
             style={styles.btn}
             mode="contained"
             onPress={handleSubmit}
             icon="cart-plus"
-            loading={loading} // Disable button when loading
+            loading={loading}
           >
             Request Supply
           </Button>
@@ -175,7 +166,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#222831',
+    backgroundColor: '#FAFAFA',
   },
   card: {
     width: '90%',
@@ -205,3 +196,4 @@ const styles = StyleSheet.create({
 });
 
 export default RequestSupplyScreen;
+

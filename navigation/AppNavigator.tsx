@@ -15,11 +15,12 @@ import MaintenanceRequestScreen from '../screens/MaintenanceRequestScreen';
 import ManageRequestScreen from '../screens/ManageRequestScreen';
 import { useAuth } from '../context/AuthContext';
 import { View } from 'react-native';
-import { RootStackParamList } from '@/types/navigation';
 import AddSupplyScreen from '@/screens/AddSupplyScreen';
 import { Ionicons } from '@expo/vector-icons';
 import { DrawerContentScrollView, DrawerItemList, DrawerItem } from '@react-navigation/drawer';
-import { Avatar, Drawer as PaperDrawer, Text, Title, useTheme, Caption } from 'react-native-paper'; // Import Paper components
+import { Avatar, Drawer as PaperDrawer, Title, useTheme, Caption } from 'react-native-paper';
+
+import {  Text  } from 'react-native-paper';// Import Paper components
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -31,6 +32,8 @@ const AuthStack = () => (
   </Stack.Navigator>
 );
 
+
+
 const CustomDrawerContent = ({ role, logout, ...props }: DrawerContentComponentProps & { role: string | null; logout: () => void }) => {
   const { colors } = useTheme();
 
@@ -38,15 +41,15 @@ const CustomDrawerContent = ({ role, logout, ...props }: DrawerContentComponentP
     <DrawerContentScrollView {...props} contentContainerStyle={{ backgroundColor: colors.surface }}>
       <View style={{ backgroundColor: colors.primary, padding: 20, marginBottom: 10 }}>
         <Avatar.Icon size={50} icon="account-circle" color={colors.onPrimary} style={{ backgroundColor: colors.primaryContainer }} />
-        <Title style={{ color: colors.onPrimary, marginTop: 10 }}>
+        <Text variant='titleLarge' style={{ color: colors.onPrimary, marginTop: 10 }}>
           {role ? role.charAt(0).toUpperCase() + role.slice(1) + ' User' : 'Guest'}
-        </Title>
-        <Caption style={{ color: colors.onPrimary }}>{role ? 'Logged in as ' + role : 'Not logged in'}</Caption>
+        </Text>
+        <Text variant='labelSmall' style={{ color: colors.onPrimary }}>{role ? 'Logged in as ' + role : 'Not logged in'}</Text>
       </View>
       <PaperDrawer.Section>
         <DrawerItemList {...props} />
       </PaperDrawer.Section>
-      <PaperDrawer.Section style={{ borderTopWidth: 1, borderTopColor: colors.outline }}>
+      <PaperDrawer.Section style={{ marginTop: 220 }}>
         <DrawerItem
           label="Logout"
           onPress={logout}
@@ -84,6 +87,7 @@ const AppDrawer = () => {
           options={{
             drawerIcon: ({ color, size }) => <Ionicons name="shield-checkmark-outline" size={size} color={color} />,
             drawerLabel: 'Admin Area',
+            drawerLabelStyle: { marginLeft: 10 },
           }}
         />
       )}
@@ -94,6 +98,7 @@ const AppDrawer = () => {
           options={{
             drawerIcon: ({ color, size }) => <Ionicons name="ribbon-outline" size={size} color={color} />,
             drawerLabel: 'Head Area',
+            drawerLabelStyle: { marginLeft: 10 },
           }}
         />
       )}
@@ -104,6 +109,7 @@ const AppDrawer = () => {
           options={{
             drawerIcon: ({ color, size }) => <Ionicons name="person-outline" size={size} color={color} />,
             drawerLabel: 'Staff Area',
+            drawerLabelStyle: { marginLeft: 10 },
           }}
         />
       )}
@@ -113,6 +119,7 @@ const AppDrawer = () => {
           options={{
             drawerIcon: ({ color, size }) => <Ionicons name="search-outline" size={size} color={color} />,
             drawerLabel: 'View Supply',
+            drawerLabelStyle: { marginLeft: 10 },
           }}
         >
           {(props) => (
@@ -127,6 +134,7 @@ const AppDrawer = () => {
           options={{
             drawerIcon: ({ color, size }) => <Ionicons name="download-outline" size={size} color={color} />,
             drawerLabel: 'Request Supply',
+            drawerLabelStyle: { marginLeft: 10 },
           }}
         />
       )}
@@ -136,6 +144,8 @@ const AppDrawer = () => {
           options={{
             drawerItemStyle: { display: 'none' }, // Hide from drawer
             drawerLabel: 'Edit Supply',
+            drawerLabelStyle: { marginLeft: 10 },
+            
           }}
         >
           {(props) => <EditSupplyScreen {...props} setRefreshSupplyList={setRefreshSupplyList} />}
@@ -148,6 +158,7 @@ const AppDrawer = () => {
           options={{
             drawerIcon: ({ color, size }) => <Ionicons name="construct-outline" size={size} color={color} />,
             drawerLabel: 'Maintenance Request',
+            drawerLabelStyle: { marginLeft: 10 },
           }}
         />
       )}
@@ -158,6 +169,7 @@ const AppDrawer = () => {
           options={{
             drawerIcon: ({ color, size }) => <Ionicons name="layers-outline" size={size} color={color} />,
             drawerLabel: 'Manage Requests',
+            drawerLabelStyle: { marginLeft: 10 },
           }}
         />
       )}
@@ -168,6 +180,7 @@ const AppDrawer = () => {
           options={{
             drawerIcon: ({ color, size }) => <Ionicons name="add-outline" size={size} color={color} />,
             drawerLabel: 'Add Supply',
+            drawerLabelStyle: { marginLeft: 10 },
           }}
         />
       )}

@@ -2,9 +2,10 @@ import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList, Alert, ActivityIndicator, Animated } from 'react-native';
 import { globalStyles } from '@/styles/global';
 import { db } from '@/firebase/config';
-import { collection, getDocs, updateDoc, doc, getDoc, addDoc, orderBy, query } from 'firebase/firestore';
-import { Button } from 'react-native-paper'; // Using Button from react-native-paper
-import { ScrollView } from 'react-native-gesture-handler'; // Consider if really needed, FlatList is usually better
+import { collection, getDocs, updateDoc, doc, getDoc, addDoc, orderBy, query, setDoc } from 'firebase/firestore';
+import { Button } from 'react-native-paper';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '@/types/navigation';
 
 interface Request {
   id: string;
@@ -21,10 +22,10 @@ interface HandleStatusChangeParams {
   supplyId: string;
   quantity: number;
   newStatus: 'approved' | 'rejected';
-  requestData: any; // Pass the entire request data
+  requestData: Request;
 }
 
-const ManageRequestsScreen = () => {
+const ManageRequestsScreen = ({ navigation }: { navigation: StackNavigationProp<RootStackParamList, 'ManageRequest'> }) => {
   const [requests, setRequests] = useState<Request[]>([]);
   const [loading, setLoading] = useState(true);
   const fadeAnims = useRef<{ [key: string]: Animated.Value }>({});
@@ -53,7 +54,7 @@ const ManageRequestsScreen = () => {
       setRequests(requestsData);
     } catch (error: any) {
       console.error('Error fetching requests:', error.message || error);
-      Alert.alert('Error', 'Failed to fetch requests.'); // User feedback
+      Alert.alert('Error', 'Failed to fetch requests.');
     } finally {
       setLoading(false);
     }
@@ -68,16 +69,16 @@ const ManageRequestsScreen = () => {
     supplyId,
     quantity,
     newStatus,
-    requestData, // Destructure requestData
+    requestData,
   }: HandleStatusChangeParams): Promise<void> => {
     try {
       const supplyRef = doc(db, 'supplies', supplyId);
       const supplySnap = await getDoc(supplyRef);
-      const requestRef = doc(db, 'requests', requestId);
-
 
       if (!supplySnap.exists()) {
-        throw new Error('Supply does not exist.');
+        Alert.alert('Error', 'Supply does not exist.');
+        await updateDoc(doc(db, 'requests', requestId), { status: 'rejected' }); //update the request status
+        return;
       }
 
       const currentQty = supplySnap.data().quantity;
@@ -88,10 +89,10 @@ const ManageRequestsScreen = () => {
       }
 
       if (newStatus === 'approved') {
-        await updateDoc(supplyRef, {
-          quantity: currentQty - quantity,
-        });
+        // Update supply quantity
+        await updateDoc(supplyRef, { quantity: currentQty - quantity });
 
+        // Add to approved requests
         await addDoc(collection(db, 'approvedRequests'), {
           ...requestData,
           status: newStatus,
@@ -105,13 +106,12 @@ const ManageRequestsScreen = () => {
         });
       }
 
-      await updateDoc(requestRef, {
-        status: newStatus,
-      });
+      // Update request status
+      await updateDoc(doc(db, 'requests', requestId), { status: newStatus });
 
       Animated.timing(fadeAnims.current[requestId], {
         toValue: 0,
-        duration: 300, // Shorter duration
+        duration: 300,
         useNativeDriver: true,
       }).start(() => {
         setRequests((prev) => prev.filter((item) => item.id !== requestId));
@@ -120,7 +120,7 @@ const ManageRequestsScreen = () => {
       Alert.alert(newStatus === 'approved' ? 'Approved' : 'Rejected', `Request ${newStatus}`);
     } catch (error: any) {
       console.error(`Error handling ${newStatus}:`, error.message || error);
-      Alert.alert('Error', `Failed to ${newStatus} request.`); // More specific error
+      Alert.alert('Error', `Failed to ${newStatus} request: ${error.message}`);
     }
   };
 
@@ -153,7 +153,7 @@ const ManageRequestsScreen = () => {
                 supplyId: item.supplyId,
                 quantity: item.quantity,
                 newStatus: 'approved',
-                requestData: item, // Pass the entire item
+                requestData: item,
               })}
             >
               Approve
@@ -166,7 +166,7 @@ const ManageRequestsScreen = () => {
                 supplyId: item.supplyId,
                 quantity: item.quantity,
                 newStatus: 'rejected',
-                requestData: item, // Pass the entire item
+                requestData: item,
               })}
             >
               Reject
@@ -250,3 +250,4 @@ const styles = StyleSheet.create({
 });
 
 export default ManageRequestsScreen;
+

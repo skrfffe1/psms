@@ -24,7 +24,7 @@ interface Supply {
   category: string;
 }
 
-const ViewSupplyScreen: React.FC<ViewSupplyScreenProps> = ({ navigation, refreshSupplyList, setRefreshSupplyList }) => {
+const ViewSupplyScreen = ({ navigation, refreshSupplyList } : ViewSupplyScreenProps) => {
   const [supplies, setSupplies] = useState<Supply[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredSupplies, setFilteredSupplies] = useState<Supply[]>([]);
@@ -86,7 +86,7 @@ const ViewSupplyScreen: React.FC<ViewSupplyScreenProps> = ({ navigation, refresh
 
     <TouchableOpacity
       style={{
-        backgroundColor: '#f9f9f9',
+        backgroundColor: '#222831',
         padding: 16,
         borderRadius: 16,
         marginBottom: 12,
@@ -121,11 +121,11 @@ const ViewSupplyScreen: React.FC<ViewSupplyScreenProps> = ({ navigation, refresh
       }
     >
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-        <Ionicons name="cube-outline" size={32} color="#007AFF" style={{ marginRight: 16 }} />
+        <Ionicons name="cube-outline" size={32} color="#FAFAFA" style={{ marginRight: 16 }} />
         <View style={{ flex: 1 }}>
-          <Text style={[globalStyles.header, { fontSize: 18, marginBottom: 4 }]}>{item.supplyName}</Text>
-          <Text style={{ color: '#555', fontSize: 14, lineHeight: 20 }}>Quantity: {item.quantity}</Text>
-          <Text style={{ color: '#555', fontSize: 14, lineHeight: 20 }}>Category: {item.category}</Text>
+          <Text style={[globalStyles.header, {color: '#FAFAFA', fontSize: 18, marginBottom: 4 }]}>{item.supplyName}</Text>
+          <Text style={{ color: '#FAFAFA', fontSize: 14, lineHeight: 20 }}>Quantity: {item.quantity}</Text>
+          <Text style={{ color: '#FAFAFA', fontSize: 14, lineHeight: 20 }}>Category: {item.category}</Text>
         </View>
       </View>
     </TouchableOpacity>

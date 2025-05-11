@@ -13,6 +13,8 @@ export type RootStackParamList = {
   MaintenanceRequest: undefined;
   ManageRequest: undefined;
   RequestSupply: undefined;
+  ViewSupply: undefined; // No parameters
+  
   // Add other screens here and their parameter types.  Example:
   // Profile: { userId: string };
   // ProductDetails: { productId: number; category?: string }; // category is optional
