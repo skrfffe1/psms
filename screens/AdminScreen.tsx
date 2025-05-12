@@ -6,14 +6,28 @@ import AdminDashboardCarousel from '@/components/AdminDashboardCarousel';
 import RecentRequests from '@/components/RecentRequests';
 import QuickActions from '@/components/QuickActions';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { Button, Card, IconButton } from 'react-native-paper';
+import { Button, Card, IconButton, SegmentedButtons } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '@/types/navigation';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore'; // Import for Firebase
+import { collection, getDocs, deleteDoc, doc, query, where } from 'firebase/firestore'; // Import for Firebase
 import { db } from '@/firebase/config';
 
 const Tab = createMaterialTopTabNavigator();
+
+interface Request {
+    id: string;
+    supplyName: string;
+    supplyId: string;
+    quantity: number;
+    requester: string;
+    reason: string;
+    status: string;
+    requestType: 'supply' | 'maintenance'; // Add requestType
+    createdAt?: any;
+    requesterFirstName?: string;
+    requesterLastName?: string;
+}
 
 interface User {
     id: string;
@@ -21,7 +35,6 @@ interface User {
     lastName: string;
     email: string;
     role: string;
-    // Add other relevant user fields
 }
 
 function OverviewTab() {
@@ -51,18 +64,78 @@ function SuppliesTab() {
 }
 
 function RequestsTab() {
+    const [requests, setRequests] = useState<Request[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [filterValue, setFilterValue] = useState<'supply' | 'maintenance' | 'all'>('all');
     const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+
+    const fetchRequests = useCallback(async (filter: 'supply' | 'maintenance' | 'all') => {
+        setLoading(true);
+        try {
+            let q = query(collection(db, 'requests'));
+            if (filter === 'supply') {
+                q = query(collection(db, 'requests'), where('requestType', '==', 'supply'));
+            } else if (filter === 'maintenance') {
+                q = query(collection(db, 'requests'), where('requestType', '==', 'maintenance'));
+            }
+            const querySnapshot = await getDocs(q);
+            const requestsData = querySnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+            })) as Request[];
+            setRequests(requestsData);
+        } catch (error) {
+            console.error('Error fetching requests:', error);
+            Alert.alert('Error', 'Failed to fetch requests.');
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchRequests(filterValue);
+    }, [filterValue, fetchRequests]);
+
+    const renderRequestItem = ({ item }: { item: Request }) => (
+        <Card style={styles.requestCard}>
+            <Card.Content>
+                <Text style={styles.requestSupplyName}>{item.supplyName || 'Maintenance'} Request</Text>
+                <Text style={styles.requestDetail}>By: {item.requesterFirstName} {item.requesterLastName}</Text>
+                <Text style={styles.requestDetail}>Reason: {item.reason}</Text>
+                <Text style={styles.requestDetail}>Status: {item.status}</Text>
+                {item.requestType === 'supply' && <Text style={styles.requestDetail}>Quantity: {item.quantity}</Text>}
+                <Text style={styles.requestDetail}>Type: {item.requestType}</Text>
+                <View style={styles.requestActions}>
+                    <Button onPress={() => navigation.navigate('ManageRequest')} style={styles.actionButton}>Manage</Button>
+                    {/* Add more action buttons if needed */}
+                </View>
+            </Card.Content>
+        </Card>
+    );
+
     return (
         <View style={styles.tabContainer}>
-            <Text style={styles.tabTitle}>Requests Management</Text>
-            <Button
-                mode="contained"
-                onPress={() => navigation.navigate('ManageRequest')}
-                style={styles.navigationButton}
-            >
-                Manage Supply Requests
-            </Button>
-            {/* You could add a summary of pending requests here */}
+            <SegmentedButtons
+                value={filterValue}
+                onValueChange={setFilterValue}
+                buttons={[
+                    { value: 'all', label: 'All Requests' },
+                    { value: 'supply', label: 'Supply' },
+                    { value: 'maintenance', label: 'Maintenance' },
+                ]}
+                style={styles.filterButtons}
+            />
+            {loading ? (
+                <ActivityIndicator size="large" color="#007AFF" />
+            ) : requests.length === 0 ? (
+                <Text>No requests found for the selected filter.</Text>
+            ) : (
+                <FlatList
+                    data={requests}
+                    keyExtractor={(item) => item.id}
+                    renderItem={renderRequestItem}
+                />
+            )}
         </View>
     );
 }
@@ -269,6 +342,31 @@ const styles = StyleSheet.create({
     userActions: {
         flexDirection: 'row',
         alignItems: 'center',
+    },
+    filterButtons: {
+        marginBottom: 16,
+    },
+    requestCard: {
+        marginBottom: 12,
+        borderRadius: 8,
+        elevation: 2,
+    },
+    requestDetail: {
+        fontSize: 14,
+        color: '#555',
+        marginBottom: 2,
+    },
+    requestSupplyName: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#333',
+        marginBottom: 4,
+    },
+    requestActions: {
+        marginTop: 8,
+    },
+    actionButton: {
+        marginRight: 8,
     },
 });
 
