@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList, Alert, ActivityIndicator, Animated } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Alert, ActivityIndicator, Animated } from 'react-native';
 import { globalStyles } from '@/styles/global';
 import { db } from '@/firebase/config';
-import { collection, getDocs, updateDoc, doc, getDoc, addDoc, orderBy, query, setDoc } from 'firebase/firestore';
+import { collection, getDocs, updateDoc, doc, getDoc, setDoc, orderBy, query, serverTimestamp as firebaseServerTimestamp } from 'firebase/firestore';
 import { Button } from 'react-native-paper';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@/types/navigation';
@@ -15,6 +15,9 @@ interface Request {
   requester: string;
   reason: string;
   status: string;
+  createdAt?: any;
+  requesterFirstName?: string;
+  requesterLastName?: string;
 }
 
 interface HandleStatusChangeParams {
@@ -39,7 +42,7 @@ const ManageRequestsScreen = ({ navigation }: { navigation: StackNavigationProp<
       const requestsData = querySnapshot.docs.map((doc) => {
         const id = doc.id;
         fadeAnims.current[id] = new Animated.Value(1);
-        const data = doc.data();
+        const data = doc.data() as Request;
         return {
           id,
           supplyName: data.supplyName || '',
@@ -48,6 +51,9 @@ const ManageRequestsScreen = ({ navigation }: { navigation: StackNavigationProp<
           requester: data.requester || '',
           reason: data.reason || '',
           status: data.status || 'pending',
+          createdAt: data.createdAt,
+          requesterFirstName: data.requesterFirstName,
+          requesterLastName: data.requesterLastName
         };
       });
 
@@ -77,7 +83,7 @@ const ManageRequestsScreen = ({ navigation }: { navigation: StackNavigationProp<
 
       if (!supplySnap.exists()) {
         Alert.alert('Error', 'Supply does not exist.');
-        await updateDoc(doc(db, 'requests', requestId), { status: 'rejected' }); //update the request status
+        await updateDoc(doc(db, 'requests', requestId), { status: 'rejected' });
         return;
       }
 
@@ -88,26 +94,23 @@ const ManageRequestsScreen = ({ navigation }: { navigation: StackNavigationProp<
         return;
       }
 
+      const requestDocRef = doc(db, 'requests', requestId);
+
       if (newStatus === 'approved') {
         // Update supply quantity
         await updateDoc(supplyRef, { quantity: currentQty - quantity });
 
-        // Add to approved requests
-        await addDoc(collection(db, 'approvedRequests'), {
+        // Add to issuance logs
+        const issuanceLogRef = doc(collection(db, 'issuanceLogs'), requestId);
+        await setDoc(issuanceLogRef, {
           ...requestData,
           status: newStatus,
-          decisionDate: new Date(),
-        });
-      } else if (newStatus === 'rejected') {
-        await addDoc(collection(db, 'rejectedRequests'), {
-          ...requestData,
-          status: newStatus,
-          decisionDate: new Date(),
+          issuanceDate: serverTimestamp(),
         });
       }
 
       // Update request status
-      await updateDoc(doc(db, 'requests', requestId), { status: newStatus });
+      await updateDoc(requestDocRef, { status: newStatus });
 
       Animated.timing(fadeAnims.current[requestId], {
         toValue: 0,
@@ -139,7 +142,7 @@ const ManageRequestsScreen = ({ navigation }: { navigation: StackNavigationProp<
       <Animated.View style={[styles.card, { opacity: fadeAnim }]}>
         <Text style={styles.supplyName}>{item.supplyName}</Text>
         <Text style={styles.detailText}>Quantity: {item.quantity}</Text>
-        <Text style={styles.detailText}>Requester: {item.requester}</Text>
+        <Text style={styles.detailText}>Requester: {item.requesterFirstName} {item.requesterLastName} ({item.requester})</Text>
         <Text style={styles.detailText}>Reason: {item.reason}</Text>
         <Text style={[styles.statusText, { fontStyle: 'italic' }]}>Status: {item.status}</Text>
 
@@ -239,7 +242,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     textAlign: 'center',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
   noRequestsText: {
     fontSize: 16,
@@ -249,5 +252,8 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ManageRequestsScreen;
+function serverTimestamp(): any {
+  return firebaseServerTimestamp();
+}
 
+export default ManageRequestsScreen;

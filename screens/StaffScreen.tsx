@@ -192,9 +192,9 @@ const StaffScreen: React.FC<StaffScreenProps> = ({ navigation }) => {
                     )}
                     shifting={true}
                     labeled={true}
-                    inactiveColor="#777"
-                    activeColor="#007AFF"
-                    style={{ backgroundColor: '#F9FAFB' }}
+                    inactiveColor="#f0f9ff"
+                    activeColor="#dbeafe"
+                    barStyle={{ backgroundColor: '#1c398e', elevation: 4 }}
                 />
             </View>
         </Provider>
@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 0,
-        backgroundColor: '#f0f4f8',
+        backgroundColor: '#303F9F',
     },
     header: {
         fontSize: 24,
@@ -228,18 +228,18 @@ const styles = StyleSheet.create({
         marginVertical: 4,
         elevation: 2,
         borderRadius: 8,
-        backgroundColor: '#FFFFFF', // Changed from #222831 to #FFFFFF
+        backgroundColor: '#1c398e', // Changed from #222831 to #FFFFFF
     },
     supplyName: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#2c3e50', // Changed from #FAFAFA to #2c3e50
+        color: '#fafaf9', // Changed from #FAFAFA to #2c3e50
         marginBottom: 8,
         fontFamily: 'System',
     },
     quantity: {
         fontSize: 16,
-        color: '#34495e', // Changed from #FAFAFA to #34495e
+        color: '#fafaf9', // Changed from #FAFAFA to #34495e
         marginBottom: 8,
         fontFamily: 'System',
     },
@@ -251,13 +251,13 @@ const styles = StyleSheet.create({
     },
     reason: {
         fontSize: 16,
-        color: '#7f8c8d',  // Changed from #FAFAFA to #7f8c8d
+        color: '#fafaf9',  // Changed from #FAFAFA to #7f8c8d
         marginBottom: 8,
         fontFamily: 'System',
     },
     date: {
         fontSize: 14,
-        color: '#95a5a6', // Changed from #FAFAFA to #95a5a6
+        color: '#fafaf9', // Changed from #FAFAFA to #95a5a6
         fontFamily: 'System',
     },
     loadingContainer: {

@@ -8,7 +8,7 @@ export type RootStackParamList = {
   Staff: undefined; // No parameters
   Supply: undefined; // No parameters
   Unauthorized: undefined; // No parameters
-  EditSupply: { id: string };
+  EditSupply: { id: string } | undefined;
   AddSupply: undefined; // Add this line
   MaintenanceRequest: undefined;
   ManageRequest: undefined;

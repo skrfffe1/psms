@@ -7,14 +7,15 @@ import { globalStyles } from '@/styles/global';
 import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '@/firebase/config';
 import { Ionicons } from '@expo/vector-icons';
-import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@/types/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { DrawerScreenProps, DrawerNavigationProp } from '@react-navigation/drawer';
 
 interface ViewSupplyScreenProps {
-  navigation: StackNavigationProp<RootStackParamList, 'Supply'>;
-  refreshSupplyList: boolean;
-  setRefreshSupplyList: React.Dispatch<React.SetStateAction<boolean>>;
+    navigation: DrawerNavigationProp<RootStackParamList, 'ViewSupply'>;
+    refreshSupplyList: boolean;
+    setRefreshSupplyList: React.Dispatch<React.SetStateAction<boolean>>;
+    route: DrawerScreenProps<RootStackParamList, 'ViewSupply'>['route']
 }
 
 interface Supply {
@@ -86,7 +87,7 @@ const ViewSupplyScreen = ({ navigation, refreshSupplyList } : ViewSupplyScreenPr
 
     <TouchableOpacity
       style={{
-        backgroundColor: '#222831',
+        backgroundColor: '#1c398e',
         padding: 16,
         borderRadius: 16,
         marginBottom: 12,

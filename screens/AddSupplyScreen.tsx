@@ -100,7 +100,7 @@ export default function AddSupplyScreen({navigation}: AddSupplyScreenProps): JSX
             style={styles.input}
             value={supplyName}
             onChangeText={(text: string) => setSupplyName(text)}
-            mode="outlined"
+            textColor='#0c0a09'
             placeholder=""
             autoCapitalize="none"
             autoCorrect={false}
@@ -115,31 +115,39 @@ export default function AddSupplyScreen({navigation}: AddSupplyScreenProps): JSX
             style={styles.input}
             value={quantity}
             onChangeText={(text: string) => setQuantity(text)}
-            mode="outlined"
+            textColor='#0c0a09'
             placeholder=""
             autoCapitalize="none"
             autoCorrect={false}
-            returnKeyType="done"
+            keyboardType="default"
+            returnKeyType="next"
             onFocus={() => setQuantity('')}
             onBlur={() => setQuantity(quantity.trim())}
             label="Quantity"
-            keyboardType="numeric" //added
-            right={<TextInput.Icon icon="eye" />}
+            right={<TextInput.Icon icon={'eye'} />}
           />
           <TextInput
             style={styles.input}
             value={description}
             onChangeText={(text: string) => setDescription(text)}
-            mode="outlined"
-            placeholder="Description"
+            textColor='#0c0a09'
+            placeholder=""
             autoCapitalize="none"
-            right={<TextInput.Icon icon="text" />}
+            autoCorrect={false}
+            keyboardType="default"
+            returnKeyType="next"
+            onFocus={() => setDescription('')}
+            onBlur={() => setDescription(description.trim())}
+            label="Description"
+            right={<TextInput.Icon icon={'text'} />}
           />
           <Button
             style={styles.btn}
             icon="plus"
             mode="contained"
             onPress={handleAddSupply}
+            labelStyle={{ color: '#09090b' }}
+            elevation={5}
           >
             Add Supply
           </Button>
@@ -154,11 +162,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#222831',
+    backgroundColor: '#fafaf9',
   },
   card: {
     width: '90%',
-    backgroundColor: '#222831',
+    backgroundColor: '#312c85',
     borderRadius: 10,
     padding: 20,
     elevation: 5,
@@ -166,12 +174,13 @@ const styles = StyleSheet.create({
   picker: {
     marginBottom: 15,
     width: '100%',
-    backgroundColor: '#222831',
-    color: '#fff'
+    backgroundColor: '#fafaf9',
+    color: '#0c0a09'
   },
   input: {
     marginBottom: 10,
     width: '100%',
+    backgroundColor: '#fafaf9',
   },
   text: {
     fontFamily: 'Poppins',
@@ -179,7 +188,8 @@ const styles = StyleSheet.create({
   },
   btn: {
     marginTop: 10,
-    width: '80%',
+    width: '48%',
+    backgroundColor: '#ffcc00',
   },
   center: {
     alignItems: 'center',
