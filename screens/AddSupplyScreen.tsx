@@ -8,11 +8,11 @@ import {  useNavigation } from '@react-navigation/native'; // Changed
 import Toast from 'react-native-toast-message';
 import { Button, Card, TextInput } from 'react-native-paper';
 import { Picker } from '@react-native-picker/picker';
-import { StackNavigationProp } from '@react-navigation/stack'; //Added
+import { DrawerNavigationProp} from '@react-navigation/drawer'; // Import Drawer types
 import { RootStackParamList } from '@/types/navigation'; //Added
 
 interface AddSupplyScreenProps {
-  navigation: StackNavigationProp<RootStackParamList, 'AddSupply'>; // Added navigation
+  navigation: DrawerNavigationProp<RootStackParamList, 'AddSupply'>;
 }
 
 interface Supply {

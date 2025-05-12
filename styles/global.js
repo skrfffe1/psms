@@ -4,10 +4,10 @@ import { StyleSheet } from 'react-native';
 
 export const globalStyles = StyleSheet.create({
   container: {
-    flex: 1,
+   
     backgroundColor: '#F7F8FA', // very light gray for modern feel
     padding: 20,
-    justifyContent: 'center',
+   
   },
   header: {
     fontSize: 28,

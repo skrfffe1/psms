@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, Button, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet, Text, ActivityIndicator } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
-import { DrawerNavigationProp, DrawerScreenProps } from '@react-navigation/drawer'; // Import Drawer types
+import { useRoute, RouteProp } from '@react-navigation/native';
+import { DrawerNavigationProp, DrawerScreenProps } from '@react-navigation/drawer';
 import { RootStackParamList } from '@/types/navigation';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import Toast from 'react-native-toast-message';
+import { Button, Card, TextInput } from 'react-native-paper';
+import { globalStyles } from '@/styles/global'; // Assuming you might want global styles
 
 interface Supply {
     supplyName: string;
@@ -16,9 +18,9 @@ interface Supply {
 }
 
 interface EditSupplyScreenProps {
-    navigation: DrawerNavigationProp<RootStackParamList, 'EditSupply'>; // Use DrawerNavigationProp
+    navigation: DrawerNavigationProp<RootStackParamList, 'EditSupply'>;
     setRefreshSupplyList: React.Dispatch<React.SetStateAction<boolean>>;
-    route: DrawerScreenProps<RootStackParamList, 'EditSupply'>['route']
+    route: DrawerScreenProps<RootStackParamList, 'EditSupply'>['route'];
 }
 
 type EditSupplyRouteProp = RouteProp<RootStackParamList, 'EditSupply'>;
@@ -97,51 +99,87 @@ const EditSupplyScreen: React.FC<EditSupplyScreenProps> = ({ navigation }) => {
 
     if (loading) {
         return (
-            <View style={styles.loadingContainer}>
-                <Text>Loading...</Text>
+            <View style={globalStyles.container}>
+                <ActivityIndicator size="large" color="#007AFF" />
             </View>
         );
     }
 
     return (
         <View style={styles.container}>
-            <Text style={styles.label}>Supply Name</Text>
-            <TextInput
-                style={styles.input}
-                value={supplyName}
-                onChangeText={setSupplyName}
-                placeholder="Enter supply name"
-            />
-
-            <Text style={styles.label}>Quantity</Text>
-            <TextInput
-                style={styles.input}
-                value={quantity}
-                onChangeText={setQuantity}
-                placeholder="Enter quantity"
-                keyboardType="numeric"
-            />
-
-            <Text style={styles.label}>Description</Text>
-            <TextInput
-                style={styles.input}
-                value={description}
-                onChangeText={setDescription}
-                placeholder="Enter description"
-            />
-
-            <Text style={styles.label}>Category</Text>
-            <Picker
-                selectedValue={category}
-                style={styles.picker}
-                onValueChange={(itemValue) => setCategory(itemValue)}
-            >
-                {itemValues.map((item) => (
-                    <Picker.Item key={item} label={item} value={item} />
-                ))}
-            </Picker>
-
-            <Button title="Update Supply" onPress={handleUpdateSupply} disabled={loading} />
+            <Card style={styles.card}>
+                <Card.Content style={styles.center}>
+                    <Picker
+                        selectedValue={category}
+                        onValueChange={(itemValue: string) => setCategory(itemValue)}
+                        style={[styles.input, styles.picker]}
+                        mode="dropdown"
+                        dropdownIconColor="#fff"
+                        dropdownIconRippleColor="#fff"
+                        itemStyle={{ color: '#fff' }}
+                    >
+                        <Picker.Item label="Select Category..." value="" />
+                        {itemValues.map((item, index) => (
+                            <Picker.Item key={index} label={item} value={item} />
+                        ))}
+                    </Picker>
+                    <TextInput
+                        style={styles.input}
+                        value={supplyName}
+                        onChangeText={(text: string) => setSupplyName(text)}
+                        textColor='#0c0a09'
+                        placeholder=""
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                        keyboardType="default"
+                        returnKeyType="next"
+                        onFocus={() => setSupplyName('')}
+                        onBlur={() => setSupplyName(supplyName.trim())}
+                        label="Supply Name"
+                        right={<TextInput.Icon icon={'cart'} />}
+                    />
+                    <TextInput
+                        style={styles.input}
+                        value={quantity}
+                        onChangeText={(text: string) => setQuantity(text)}
+                        textColor='#0c0a09'
+                        placeholder=""
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                        keyboardType="default"
+                        returnKeyType="next"
+                        onFocus={() => setQuantity('')}
+                        onBlur={() => setQuantity(quantity.trim())}
+                        label="Quantity"
+                        right={<TextInput.Icon icon={'eye'} />}
+                    />
+                    <TextInput
+                        style={styles.input}
+                        value={description}
+                        onChangeText={(text: string) => setDescription(text)}
+                        textColor='#0c0a09'
+                        placeholder=""
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                        keyboardType="default"
+                        returnKeyType="next"
+                        onFocus={() => setDescription('')}
+                        onBlur={() => setDescription(description.trim())}
+                        label="Description"
+                        right={<TextInput.Icon icon={'text'} />}
+                    />
+                    <Button
+                        style={styles.btn}
+                        icon="pencil"
+                        mode="contained"
+                        onPress={handleUpdateSupply}
+                        labelStyle={{ color: '#09090b' }}
+                        elevation={5}
+                    >
+                        Update Supply
+                    </Button>
+                </Card.Content>
+            </Card>
         </View>
     );
 };
@@ -149,35 +187,41 @@ const EditSupplyScreen: React.FC<EditSupplyScreenProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 16,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#fafaf9',
+    },
+    card: {
+        width: '90%',
+        backgroundColor: '#312c85',
+        borderRadius: 10,
+        padding: 20,
+        elevation: 5,
+    },
+    picker: {
+        marginBottom: 15,
+        width: '100%',
+        backgroundColor: '#fafaf9',
+        color: '#0c0a09'
+    },
+    input: {
+        marginBottom: 10,
+        width: '100%',
+        backgroundColor: '#fafaf9',
+    },
+    btn: {
+        marginTop: 10,
+        width: '48%',
+        backgroundColor: '#ffcc00',
+    },
+    center: {
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     loadingContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-    },
-    label: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        marginTop: 8,
-    },
-    input: {
-        height: 40,
-        borderColor: 'gray',
-        borderWidth: 1,
-        borderRadius: 8,
-        paddingHorizontal: 10,
-        marginTop: 4,
-        marginBottom: 12,
-    },
-    picker: {
-        height: 50,
-        width: '100%',
-        borderColor: 'gray',
-        borderWidth: 1,
-        borderRadius: 8,
-        marginTop: 4,
-        marginBottom: 12,
     },
 });
 
