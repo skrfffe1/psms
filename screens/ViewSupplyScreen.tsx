@@ -142,7 +142,7 @@ const ViewSupplyScreen = ({ navigation, refreshSupplyList }: ViewSupplyScreenPro
     }
 
     return (
-        <View style={[globalStyles.container, { padding: 20 }]}>
+        <View style={[globalStyles.container, { padding: 20, flex: 1 }]}>
             <TextInput
                 style={styles.searchInput}
                 placeholder="Search supplies..."
@@ -165,6 +165,7 @@ const styles = StyleSheet.create({
         marginBottom: 12,
         borderRadius: 8,
         elevation: 3,
+        backgroundColor: '#fafaf9',
     },
     cardContent: {
         flexDirection: 'row',

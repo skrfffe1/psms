@@ -112,7 +112,7 @@ const StaffRequestsComponent = ({ navigation }: { navigation: StackNavigationPro
 
     const renderItem = useCallback(({ item }: { item: Request }) => {
         return (
-            <Card style={styles.requestCard}>
+            <Card style={[styles.requestCard]}>
                 <Card.Content>
                     <Text style={styles.supplyName}>Supply: {item.supplyName}</Text>
                     <Text style={styles.quantity}>Quantity: {item.quantity}</Text>
@@ -142,7 +142,7 @@ const StaffRequestsComponent = ({ navigation }: { navigation: StackNavigationPro
                     data={requests}
                     renderItem={renderItem}
                     keyExtractor={(item) => item.id}
-                    style={{ width: '100%', backgroundColor: 'transparent' }}
+                    style={{ width: '100%', backgroundColor: '#fafaf9' }}
                     refreshControl={
                         <RefreshControl
                             refreshing={refreshing}
@@ -154,6 +154,7 @@ const StaffRequestsComponent = ({ navigation }: { navigation: StackNavigationPro
                     initialNumToRender={10}
                     maxToRenderPerBatch={20}
                     windowSize={21}
+                    
                 />
             )}
         </Animated.View>
@@ -228,7 +229,7 @@ const styles = StyleSheet.create({
         marginVertical: 4,
         elevation: 2,
         borderRadius: 8,
-        backgroundColor: '#1c398e', // Changed from #222831 to #FFFFFF
+        backgroundColor: '#fafaf9', // Changed from #222831 to #FFFFFF
     },
     supplyName: {
         fontSize: 18,
