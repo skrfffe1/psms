@@ -3,7 +3,7 @@ import { View, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { globalStyles } from '@/styles/global';
 import { db } from '@/firebase/config';
-import { collection, addDoc, serverTimestamp, getDocs, query, where, orderBy } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, getDocs, query, where, orderBy, FirestoreError } from 'firebase/firestore'; // Import FirestoreError
 import { Picker } from '@react-native-picker/picker';
 import { Button, Card, TextInput } from 'react-native-paper';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -15,10 +15,12 @@ interface Log {
   supplyName: string;
   supplyId: string;
   requester: string;
+  requesterFirstName: string;
+  requesterLastName: string;
   issuedAt: Date | null;
   returnedAt: Date | null;
   conditionOnReturn: string | null;
-  status: string; // Added status field to Log
+  status: string;
 }
 
 interface MaintenanceRequestScreenProps {
@@ -33,7 +35,7 @@ const MaintenanceRequestScreen = ({ navigation }: MaintenanceRequestScreenProps)
   const [user, setUser] = useState('');
   const auth = getAuth();
 
-  // Fetch logs for the current user
+  // Fetch logs for the current user, specifically for items that are currently checked out
   const fetchLogs = useCallback(async () => {
     if (!user) {
       console.log('fetchLogs: User is not defined. Exiting.');
@@ -44,54 +46,67 @@ const MaintenanceRequestScreen = ({ navigation }: MaintenanceRequestScreenProps)
     setLoading(true);
     try {
       console.log('fetchLogs: Fetching logs for user:', user);
-      // Query for issuanceLogs where the requester is the current user AND the status is "Approved" AND returnedAt is null
+      //  Simplest possible query - get everything in 'issuanceLogs'
       const logsQuery = query(
-        collection(db, 'issuanceLogs'),
-        where('requester', '==', user),
-        where('status', '==', 'Approved'), // Only fetch approved items
-        where('returnedAt', '==', null),
-        orderBy('issuedAt', 'desc')
+        collection(db, "issuanceLogs"), // Replace with your collection name
+        where("requester", "==", user)
       );
+      
+      getDocs(logsQuery).then(snapshot => {
+        snapshot.forEach(doc => console.log(doc.id, doc.data()));
+      });
+
+      console.log('fetchLogs: Query created:', logsQuery);
+
       const logsSnapshot = await getDocs(logsQuery);
       console.log('fetchLogs: Number of logs found:', logsSnapshot.size);
+
+      if (logsSnapshot.empty) {
+        console.log('fetchLogs: No logs found at all in Firestore.');
+        setLogs([]);
+        Alert.alert(
+          'No Items Found',  // Changed alert title
+          'There are no items in the issuance logs.', // More general message
+          [{ text: 'OK', onPress: () => navigation.canGoBack() ? navigation.goBack() : null }]
+        );
+        setLoading(false);
+        return;
+      }
+
       const userLogs = logsSnapshot.docs.map(doc => {
         const data = doc.data();
-        console.log('fetchLogs: Log data:', data);
+        console.log('fetchLogs: Log data for doc ID', doc.id, ':', data);  //show all the data
         return {
           id: doc.id,
           supplyName: data.supplyName,
           supplyId: data.supplyId,
           requester: data.requester,
+          requesterFirstName: data.requesterFirstName,
+          requesterLastName: data.requesterLastName,
           issuedAt: data.issuedAt?.toDate() || null,
           returnedAt: data.returnedAt?.toDate() || null,
           conditionOnReturn: data.conditionOnReturn || null,
-          status: data.status || '', // Get the status of the item
+          status: data.status || '',
         };
       });
       setLogs(userLogs);
       console.log('fetchLogs: Fetched logs:', userLogs);
 
-      if (userLogs.length === 0) {
-        Alert.alert(
-          'No Items Found',
-          'You currently have no approved items to request maintenance for.',
-          [{ text: 'OK', onPress: () => navigation.canGoBack() ? navigation.goBack() : null }] // Check if canGoBack
-        );
-      }
     } catch (error: any) {
-      console.error('fetchLogs: Error fetching logs:', error.message);
-      Alert.alert('Error', `Failed to load your approved borrowed items: ${error.message}`); // Improved error message
+      console.error('fetchLogs: Error fetching logs:', error);
+      Alert.alert('Error', `Failed to load items: ${error.message}`);
+      setLoading(false);
     } finally {
       setLoading(false);
     }
-  }, [user, navigation]); // Dependency on user and navigation
+  }, [user, navigation]);
 
   // Get User ID
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((authUser) => {
       if (authUser) {
         setUser(authUser.uid);
-        console.log('useEffect: User ID set to:', authUser.uid); // Log the user ID
+        console.log('useEffect: User ID set to:', authUser.uid);
       } else {
         setUser('');
         setLogs([]);
@@ -127,17 +142,20 @@ const MaintenanceRequestScreen = ({ navigation }: MaintenanceRequestScreenProps)
       const docRef = await addDoc(collection(db, 'maintenanceRequests'), {
         supplyId: selectedLog.supplyId,
         supplyName: selectedLog.supplyName,
+        requesterFirstName: selectedLog.requesterFirstName,
+        requesterLastName: selectedLog.requesterLastName,
         requester: user,
         reason,
         requestDate: serverTimestamp(),
         status: 'pending',
+        logId: selectedLog.id, // Add the logId
       });
 
-      console.log("Document written with ID: ", docRef.id); // Added log
+      console.log("Document written with ID: ", docRef.id);
       Alert.alert('Success', 'Request submitted ✅', [{ text: 'OK', onPress: () => navigation.goBack() }]);
     } catch (error: any) {
       console.error('Error submitting request:', error.message);
-      Alert.alert('Error', `Failed to submit maintenance request: ${error.message}`); // Improved error message
+      Alert.alert('Error', `Failed to submit maintenance request: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -230,3 +248,4 @@ const styles = StyleSheet.create({
 });
 
 export default MaintenanceRequestScreen;
+
