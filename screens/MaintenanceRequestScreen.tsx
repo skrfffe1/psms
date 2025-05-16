@@ -152,7 +152,7 @@ const MaintenanceRequestScreen = ({ navigation }: MaintenanceRequestScreenProps)
       });
 
       console.log("Document written with ID: ", docRef.id);
-      Alert.alert('Success', 'Request submitted ✅', [{ text: 'OK', onPress: () => navigation.goBack() }]);
+      Alert.alert('Success', 'Request submitted ✅', [{ text: 'OK', onPress: () => navigation.canGoBack() }]);
     } catch (error: any) {
       console.error('Error submitting request:', error.message);
       Alert.alert('Error', `Failed to submit maintenance request: ${error.message}`);

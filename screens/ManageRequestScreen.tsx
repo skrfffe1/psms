@@ -396,10 +396,9 @@ const styles = StyleSheet.create({
     },
     filterContainer: {
         alignItems: 'flex-start',
-        marginBottom: 60,
+        marginBottom: 20,
         paddingHorizontal: 10,
-        width: '30%',
-        height: 10,
+        width: '50%',
     },
     filterButton: {
         flexDirection: 'row',

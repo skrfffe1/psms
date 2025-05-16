@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { View, StyleSheet, Alert, FlatList, RefreshControl, Animated, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Alert, FlatList, RefreshControl, Animated } from 'react-native';
 import { getFirestore, collection, query, where, onSnapshot, FirestoreError, orderBy } from 'firebase/firestore';
 import { useAuth } from '../context/AuthContext';
-import { ActivityIndicator, Text, Provider, BottomNavigation, Card, Menu, IconButton } from 'react-native-paper';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { ActivityIndicator, Text, Provider, BottomNavigation, Card } from 'react-native-paper';
+import { Ionicons } from '@expo/vector-icons';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@/types/navigation';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
 // Import the screen components
 import ViewSupplyScreen from './ViewSupplyScreen';
@@ -19,23 +20,28 @@ interface Request {
     status: string;
     reason: string;
     createdAt: Date | null;
-    type: 'supply' | 'maintenance'; // Add a type discriminator
+    type: 'supply' | 'maintenance';
 }
 
 interface StaffScreenProps {
     navigation: StackNavigationProp<RootStackParamList, 'Staff'>;
 }
 
-const StaffRequestsComponent = ({ navigation }: { navigation: StackNavigationProp<RootStackParamList> }) => {
+const TopTab = createMaterialTopTabNavigator();
+
+// Define the components outside the StaffScreen component
+const AllRequestsComponent = () => <StaffRequestsComponent filter="all" />;
+const SupplyRequestsComponent = () => <StaffRequestsComponent filter="supply" />;
+const MaintenanceRequestsComponent = () => <StaffRequestsComponent filter="maintenance" />;
+
+const StaffRequestsComponent = ({ filter }: { filter: 'all' | 'supply' | 'maintenance' }) => {
     const { user } = useAuth();
     const [requests, setRequests] = useState<Request[]>([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const db = getFirestore();
     const fadeAnim = useRef(new Animated.Value(0)).current;
-    const [filterMenuVisible, setFilterMenuVisible] = useState(false);
-    const [selectedFilter, setSelectedFilter] = useState<'all' | 'supply' | 'maintenance'>('all');
-    const [filterLabel, setFilterLabel] = useState('All Requests');
+    const unsubscribeRefs = useRef<(() => void)[]>([]);
 
     const fetchRequests = useCallback(() => {
         if (!user) return;
@@ -43,6 +49,8 @@ const StaffRequestsComponent = ({ navigation }: { navigation: StackNavigationPro
         setRefreshing(true);
         setLoading(true);
         let allRequests: Request[] = [];
+        unsubscribeRefs.current.forEach(unsubscribe => unsubscribe());
+        unsubscribeRefs.current = [];
 
         const fetchSupplyRequests = async () => {
             const supplyRequestsRef = collection(db, 'requests');
@@ -77,18 +85,15 @@ const StaffRequestsComponent = ({ navigation }: { navigation: StackNavigationPro
                             console.error("Error processing snapshot data for supply requests", error);
                             Alert.alert('Data Error', 'Failed to process supply request data.');
                             reject(error);
-                        } finally {
-                           // unsubscribeSupply(); // Removed: should unsubscribe in useEffect
                         }
                     },
                     (error: FirestoreError) => {
                         console.error('Error fetching supply requests:', error);
                         Alert.alert('Error', 'Failed to fetch your supply requests: ' + error.message);
                         reject(error);
-                       // unsubscribeSupply();  // Removed: should unsubscribe in useEffect
                     }
                 );
-                //unsubscribeFuncs.current.push(unsubscribeSupply); //collect unsubscribe functions
+                unsubscribeRefs.current.push(unsubscribeSupply);
             });
         };
 
@@ -97,7 +102,7 @@ const StaffRequestsComponent = ({ navigation }: { navigation: StackNavigationPro
             const maintenanceQuery = query(
                 maintenanceRequestsRef,
                 where('requester', '==', user.uid),
-                orderBy('requestDate', 'desc')  // Use requestDate if that's the field name
+                orderBy('requestDate', 'desc')
             );
 
             return new Promise<void>((resolve, reject) => {
@@ -111,7 +116,7 @@ const StaffRequestsComponent = ({ navigation }: { navigation: StackNavigationPro
                                 return {
                                     id: doc.id,
                                     supplyName: data.supplyName,
-                                    quantity: 1, // Or some default value, since maintenance might not have quantity
+                                    quantity: 1, // Or some default value
                                     status: data.status,
                                     reason: data.reason,
                                     createdAt: requestDate, // Use requestDate
@@ -124,18 +129,15 @@ const StaffRequestsComponent = ({ navigation }: { navigation: StackNavigationPro
                             console.error("Error processing snapshot data for maintenance requests", error);
                             Alert.alert('Data Error', 'Failed to process maintenance request data.');
                             reject(error);
-                        } finally {
-                            //unsubscribeMaintenance();
                         }
                     },
                     (error: FirestoreError) => {
                         console.error('Error fetching maintenance requests:', error);
                         Alert.alert('Error', 'Failed to fetch your maintenance requests: ' + error.message);
                         reject(error);
-                       // unsubscribeMaintenance();
                     }
                 );
-               // unsubscribeFuncs.current.push(unsubscribeMaintenance);
+                unsubscribeRefs.current.push(unsubscribeMaintenance);
             });
         };
 
@@ -148,9 +150,9 @@ const StaffRequestsComponent = ({ navigation }: { navigation: StackNavigationPro
             });
 
             let filteredRequests = allRequests;
-            if (selectedFilter === 'supply') {
+            if (filter === 'supply') {
                 filteredRequests = allRequests.filter(req => req.type === 'supply');
-            } else if (selectedFilter === 'maintenance') {
+            } else if (filter === 'maintenance') {
                 filteredRequests = allRequests.filter(req => req.type === 'maintenance');
             }
 
@@ -162,10 +164,11 @@ const StaffRequestsComponent = ({ navigation }: { navigation: StackNavigationPro
             setRefreshing(false);
         });
 
-    }, [db, user, selectedFilter]);
+    }, [db, user, filter]);
+
 
     useEffect(() => {
-        const unsubscribe = fetchRequests();
+        fetchRequests();
 
         Animated.timing(fadeAnim, {
             toValue: 1,
@@ -174,7 +177,7 @@ const StaffRequestsComponent = ({ navigation }: { navigation: StackNavigationPro
         }).start();
 
         return () => {
-            // No unsubscribe function to call here
+            unsubscribeRefs.current.forEach(unsubscribe => unsubscribe());
         };
     }, [fetchRequests, fadeAnim]);
 
@@ -214,48 +217,6 @@ const StaffRequestsComponent = ({ navigation }: { navigation: StackNavigationPro
 
     return (
         <Animated.View style={{ flex: 1, opacity: fadeAnim, backgroundColor: '#f0f4f8' }}>
-             <View style={styles.filterContainer}>
-                <Menu
-                    visible={filterMenuVisible}
-                    onDismiss={() => setFilterMenuVisible(false)}
-                    anchor={
-                        <TouchableOpacity onPress={() => setFilterMenuVisible(true)} style={styles.filterButton}>
-                            <Text style={styles.filterLabel}>{filterLabel}</Text>
-                            <IconButton
-                                icon="chevron-down"
-                                size={20}
-                                iconColor="#888"
-                                style={styles.filterIconStyle}
-                            />
-                        </TouchableOpacity>
-                    }
-                >
-                    <Menu.Item
-                        onPress={() => {
-                            setSelectedFilter('all');
-                            setFilterLabel('All Requests');
-                            setFilterMenuVisible(false);
-                        }}
-                        title="All Requests"
-                    />
-                    <Menu.Item
-                        onPress={() => {
-                            setSelectedFilter('supply');
-                            setFilterLabel('Supply Requests');
-                            setFilterMenuVisible(false);
-                        }}
-                        title="Supply Requests"
-                    />
-                    <Menu.Item
-                        onPress={() => {
-                            setSelectedFilter('maintenance');
-                            setFilterLabel('Maintenance Requests');
-                            setFilterMenuVisible(false);
-                        }}
-                        title="Maintenance Requests"
-                    />
-                </Menu>
-            </View>
             {loading ? (
                 <View style={styles.loadingContainer}>
                     <ActivityIndicator size="large" color="#007AFF" />
@@ -287,41 +248,88 @@ const StaffRequestsComponent = ({ navigation }: { navigation: StackNavigationPro
 };
 
 const StaffScreen: React.FC<StaffScreenProps> = ({ navigation }) => {
-    const [index, setIndex] = useState(0);
+    const [bottomNavIndex, setBottomNavIndex] = useState(0);
     const [routes] = useState<{
         key: string;
         title: string;
-        icon: keyof typeof MaterialCommunityIcons.glyphMap;
+        icon: keyof typeof Ionicons.glyphMap;
         component: React.FC<any>;
     }[]>([
-        { key: 'ViewSupply', title: 'View Supply', icon: 'format-list-bulleted', component: ViewSupplyScreen },
-        { key: 'RequestSupply', title: 'Request Supply', icon: 'cart-plus', component: RequestSupplyScreen },
-        { key: 'MaintenanceRequest', title: 'Maintenance', icon: 'tools', component: MaintenanceRequestScreen },
-        { key: 'StaffRequests', title: 'Requests', icon: 'format-list-bulleted', component: StaffRequestsComponent },
+        { key: 'ViewSupply', title: 'View Supply', icon: 'list', component: ViewSupplyScreen },
+        { key: 'RequestSupply', title: 'Request Supply', icon: 'add-circle', component: RequestSupplyScreen },
+        { key: 'StaffRequests', title: 'Requests', icon: 'list-outline', component: StaffRequestsComponent },
+        { key: 'MaintenanceRequest', title: 'Maintenance', icon: 'build', component: MaintenanceRequestScreen },
     ]);
 
     const renderScene = useCallback(({ route }: { route: any }) => {
         const Component = route.component;
+        if (route.key === 'StaffRequests') {
+            return (
+                <TopTab.Navigator
+                    screenOptions={{
+                        tabBarActiveTintColor: '#dbeafe',
+                        tabBarInactiveTintColor: '#f0f9ff',
+                        tabBarStyle: {
+                            backgroundColor: '#1c398e',
+                            elevation: 4,
+                        },
+                        tabBarLabelStyle: {
+                            fontWeight: 'bold',
+                            fontSize: 12,
+                            fontFamily: 'System',
+                        },
+                        tabBarIndicatorStyle: {
+                            backgroundColor: '#dbeafe',
+                            height: 3,
+                        },
+
+                    }}
+                >
+                    <TopTab.Screen
+                        name="AllRequests"
+                        component={AllRequestsComponent} // Use the defined component
+                        options={{ tabBarLabel: 'All' }}
+                    />
+                    <TopTab.Screen
+                        name="SupplyRequests"
+                        component={SupplyRequestsComponent} // Use the defined component
+                        options={{ tabBarLabel: 'Supply' }}
+
+                    />
+                    <TopTab.Screen
+                        name="MaintenanceRequests"
+                        component={MaintenanceRequestsComponent}  // Use the defined component
+                        options={{ tabBarLabel: 'Maintenance' }}
+                    />
+                </TopTab.Navigator>
+            );
+        }
         return <Component navigation={navigation} />;
     }, [navigation]);
 
+    const renderBottomNav = () => {
+        return (
+            <BottomNavigation
+                navigationState={{ index: bottomNavIndex, routes }}
+                onIndexChange={setBottomNavIndex}
+                renderScene={renderScene}
+                getLabelText={({ route }: any) => route.title}
+                renderIcon={({ route, color }) => (
+                    <Ionicons name={route.icon} size={24} color={color} />
+                )}
+                shifting={true}
+                labeled={true}
+                inactiveColor="#f0f9ff"
+                activeColor="#dbeafe"
+                barStyle={{ backgroundColor: '#1c398e', elevation: 4 }}
+            />
+        );
+    };
+
     return (
         <Provider>
-            <View style={styles.container}>
-                <BottomNavigation
-                    navigationState={{ index, routes }}
-                    onIndexChange={setIndex}
-                    renderScene={renderScene}
-                    getLabelText={({ route }: any) => route.title}
-                    renderIcon={({ route, color }) => (
-                        <MaterialCommunityIcons name={route.icon} size={24} color={color} />
-                    )}
-                    shifting={true}
-                    labeled={true}
-                    inactiveColor="#f0f9ff"
-                    activeColor="#dbeafe"
-                    barStyle={{ backgroundColor: '#1c398e', elevation: 4 }}
-                />
+            <View style={{ flex: 1 }}>
+                {renderBottomNav()}
             </View>
         </Provider>
     );
@@ -390,33 +398,6 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-    },
-     filterContainer: {
-        alignItems: 'flex-start',
-        marginBottom: 20,
-        paddingHorizontal: 10,
-        width: '50%',
-    },
-    filterButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 8,
-        paddingHorizontal: 12,
-        borderRadius: 8,
-        backgroundColor: '#f0f0f0',
-        borderWidth: 1,
-        borderColor: '#ddd',
-
-    },
-    filterLabel: {
-        fontSize: 12,
-        color: '#333',
-        marginRight: 8,
-    },
-      filterIconStyle: {
-        margin: 0,
-        padding: 0,
-        backgroundColor: 'transparent',
     },
 });
 

@@ -1,4 +1,3 @@
-// AuthContext.tsx
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { auth, db } from '../firebase/config';
 import {
@@ -9,7 +8,6 @@ import {
   User,
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -61,7 +59,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await signInWithEmailAndPassword(auth, email, password);
       // The onAuthStateChanged listener will handle state update
     } catch (error: any) {
-      console.error('Login Error:', error.message);
+      // firebase default console.error handling uncomment if needed
+      // console.error('Login Error:', error.message);
       throw error;
     } finally {
       setLoading(false);

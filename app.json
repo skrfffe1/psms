@@ -4,7 +4,7 @@
     "slug": "psms-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/psms-logo.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -13,7 +13,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/psms-logo.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.skrfffe1.psmsapp"
@@ -28,8 +28,8 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
+          "image": "./assets/images/psms-logo.png",
+          "imageWidth": 150,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
