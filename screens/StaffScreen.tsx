@@ -17,10 +17,11 @@ interface Request {
     id: string;
     supplyName: string;
     quantity: number;
-    status: string;
+    status: 'pending' | 'approved' | 'rejected' | 'repairing'; // Add 'repairing' status
     reason: string;
     createdAt: Date | null;
     type: 'supply' | 'maintenance';
+    maintenanceStatus?: 'pending' | 'approved' | 'rejected'; // Add maintenance status
 }
 
 interface StaffScreenProps {
@@ -190,6 +191,7 @@ const StaffRequestsComponent = ({ filter }: { filter: 'all' | 'supply' | 'mainte
             case 'pending': return '#f39c12';
             case 'approved': return '#2ecc71';
             case 'rejected': return '#e74c3c';
+            case 'repairing': return '#3498db'; // Add color for repairing
             default: return '#3498db';
         }
     }, []);
@@ -198,14 +200,16 @@ const StaffRequestsComponent = ({ filter }: { filter: 'all' | 'supply' | 'mainte
         return (
             <Card style={[styles.requestCard]}>
                 <Card.Content>
-                    <Text style={styles.supplyName}>
-                        {item.type === 'supply' ? 'Supply: ' : 'Maintenance: '}
-                        {item.supplyName}
-                    </Text>
-                    {item.type === 'supply' && <Text style={styles.quantity}>Quantity: {item.quantity}</Text>}
+                    <Text style={styles.supplyName}>Supply: {item.supplyName}</Text>
+                    <Text style={styles.quantity}>Quantity: {item.quantity}</Text>
                     <Text style={[styles.status, { color: getStatusColor(item.status) }]}>
                         Status: {item.status}
                     </Text>
+                    {item.maintenanceStatus && item.maintenanceStatus === 'approved' && (
+                        <Text style={[styles.maintenanceStatus, { color: '#3498db' }]}>
+                            Maintenance: Repairing
+                        </Text>
+                    )}
                     <Text style={styles.reason}>Reason: {item.reason}</Text>
                     <Text style={styles.date}>
                         Requested: {item.createdAt ? item.createdAt.toLocaleString() : 'N/A'}
@@ -399,6 +403,12 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+    maintenanceStatus: { // Added style
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginBottom: 8,
+        fontFamily: 'System',
+    }
 });
 
 export default StaffScreen;

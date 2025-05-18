@@ -9,16 +9,18 @@ export type RootStackParamList = {
   Supply: undefined; // No parameters
   Unauthorized: undefined; // No parameters
   EditSupply: { id: string } | undefined;
-  AddSupply: undefined; // Add this line
+  AddSupply: undefined;
   MaintenanceRequest: undefined;
   ManageRequest: undefined;
   RequestSupply: undefined;
   ViewSupply: undefined; // No parameters
-  
+  UserRequests: { userId: string };
+
   // Add other screens here and their parameter types.  Example:
   // Profile: { userId: string };
   // ProductDetails: { productId: number; category?: string }; // category is optional
 };
+
 
 export type LoginScreenProps = StackScreenProps<RootStackParamList, 'Login'>;
 export type SignupScreenProps = StackScreenProps<RootStackParamList, 'Signup'>;
@@ -32,4 +34,5 @@ export type AddSupplyScreenProps = StackScreenProps<RootStackParamList, 'AddSupp
 export type MaintenanceRequestScreenProps = StackScreenProps<RootStackParamList, 'MaintenanceRequest'>;
 export type ManageRequestScreenProps = StackScreenProps<RootStackParamList, 'ManageRequest'>;
 export type RequestSupplyScreenProps = StackScreenProps<RootStackParamList, 'RequestSupply'>;
-export type ViewSupplyScreenProps = StackScreenProps<RootStackParamList, 'Supply'>;
+export type ViewSupplyScreenProps = StackScreenProps<RootStackParamList, 'ViewSupply'>;
+export type UserRequestsScreenProps = StackScreenProps<RootStackParamList, 'UserRequests'>;

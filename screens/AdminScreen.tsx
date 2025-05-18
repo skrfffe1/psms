@@ -1,17 +1,16 @@
-// AdminScreen.tsx
-
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Alert, ActivityIndicator, TouchableOpacity } from 'react-native';
 import AdminDashboardCarousel from '@/components/AdminDashboardCarousel';
 import RecentRequests from '@/components/RecentRequests';
 import QuickActions from '@/components/QuickActions';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { Button, Card, IconButton, SegmentedButtons } from 'react-native-paper';
+import { Button, Card, IconButton } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '@/types/navigation';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { collection, getDocs, deleteDoc, doc, query, where } from 'firebase/firestore'; // Import for Firebase
 import { db } from '@/firebase/config';
+import { useRoute as useNativeRoute, RouteProp } from '@react-navigation/native';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -23,7 +22,7 @@ interface Request {
     requester: string;
     reason: string;
     status: string;
-    requestType: 'supply' | 'maintenance'; // Add requestType
+    requestType: 'supply' | 'maintenance';
     createdAt?: any;
     requesterFirstName?: string;
     requesterLastName?: string;
@@ -36,6 +35,101 @@ interface User {
     email: string;
     role: string;
 }
+
+// UserRequestsScreen component
+const UserRequestsScreen = () => {
+    const [requests, setRequests] = useState<Request[]>([]);
+    const [loading, setLoading] = useState(true);
+    const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+    const route = useRoute();
+    const { userId } = route.params as { userId: string }; // Get the userId from the route
+
+    const fetchUserRequests = useCallback(async () => {
+        setLoading(true);
+        try {
+            // Fetch both supply and maintenance requests for the user
+            const supplyQuery = query(collection(db, 'requests'), where('requester', '==', userId));
+            const maintenanceQuery = query(collection(db, 'maintenanceRequests'), where('requester', '==', userId));
+
+            const supplySnapshot = await getDocs(supplyQuery);
+            const maintenanceSnapshot = await getDocs(maintenanceQuery);
+
+            const supplyRequests = supplySnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+            })) as Request[];
+
+            const maintenanceRequests = maintenanceSnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+            })) as Request[]; // Reuse Request interface
+
+            // Combine and sort requests, you might want to sort by date
+            const allRequests = [...supplyRequests, ...maintenanceRequests].sort(
+                (a, b) => {
+                    const dateA = a.createdAt ? a.createdAt.toDate() : new Date(0);
+                    const dateB = b.createdAt ? b.createdAt.toDate() : new Date(0);
+                    return dateB.getTime() - dateA.getTime();
+                }
+            );
+
+            setRequests(allRequests);
+        } catch (error) {
+            console.error('Error fetching user requests:', error);
+            Alert.alert('Error', 'Failed to fetch user requests.');
+        } finally {
+            setLoading(false);
+        }
+    }, [userId]);
+
+    useEffect(() => {
+        fetchUserRequests();
+    }, [fetchUserRequests]);
+
+    const renderRequestItem = ({ item }: { item: Request }) => (
+        <Card style={styles.requestCard}>
+            <Card.Content>
+                <Text style={styles.supplyName}>Supply: {item.supplyName}</Text>
+                {item.quantity && <Text style={styles.detailText}>Quantity: {item.quantity}</Text>}
+                <Text style={styles.detailText}>Reason: {item.reason}</Text>
+                <Text style={styles.status}>Status: {item.status}</Text>
+                <Text style={styles.date}>
+                    Requested: {item.createdAt ? item.createdAt.toDate().toLocaleString() : 'N/A'}
+                </Text>
+            </Card.Content>
+        </Card>
+    );
+
+    if (loading) {
+        return (
+            <View style={styles.container}>
+                <ActivityIndicator size="large" color="#007AFF" />
+            </View>
+        );
+    }
+
+    return (
+        <View style={styles.container}>
+            <Text style={styles.title}>Requests for User: {userId}</Text>
+            {requests.length === 0 ? (
+                <Text>No requests found for this user.</Text>
+            ) : (
+                <FlatList
+                    data={requests}
+                    keyExtractor={(item) => item.id}
+                    renderItem={renderRequestItem}
+                />
+            )}
+            <Button
+                mode="outlined"
+                onPress={() => navigation.goBack()}
+                style={styles.backButton}
+            >
+                Back to Users
+            </Button>
+        </View>
+    );
+};
 
 function OverviewTab() {
     return (
@@ -58,84 +152,6 @@ function SuppliesTab() {
             >
                 View All Supplies
             </Button>
-            {/* You could add a summary of supplies here if needed */}
-        </View>
-    );
-}
-
-function RequestsTab() {
-    const [requests, setRequests] = useState<Request[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [filterValue, setFilterValue] = useState<'supply' | 'maintenance' | 'all'>('all');
-    const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
-
-    const fetchRequests = useCallback(async (filter: 'supply' | 'maintenance' | 'all') => {
-        setLoading(true);
-        try {
-            let q = query(collection(db, 'requests'));
-            if (filter === 'supply') {
-                q = query(collection(db, 'requests'), where('requestType', '==', 'supply'));
-            } else if (filter === 'maintenance') {
-                q = query(collection(db, 'requests'), where('requestType', '==', 'maintenance'));
-            }
-            const querySnapshot = await getDocs(q);
-            const requestsData = querySnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data(),
-            })) as Request[];
-            setRequests(requestsData);
-        } catch (error) {
-            console.error('Error fetching requests:', error);
-            Alert.alert('Error', 'Failed to fetch requests.');
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
-    useEffect(() => {
-        fetchRequests(filterValue);
-    }, [filterValue, fetchRequests]);
-
-    const renderRequestItem = ({ item }: { item: Request }) => (
-        <Card style={styles.requestCard}>
-            <Card.Content>
-                <Text style={styles.requestSupplyName}>{item.supplyName || 'Maintenance'} Request</Text>
-                <Text style={styles.requestDetail}>By: {item.requesterFirstName} {item.requesterLastName}</Text>
-                <Text style={styles.requestDetail}>Reason: {item.reason}</Text>
-                <Text style={styles.requestDetail}>Status: {item.status}</Text>
-                {item.requestType === 'supply' && <Text style={styles.requestDetail}>Quantity: {item.quantity}</Text>}
-                <Text style={styles.requestDetail}>Type: {item.requestType}</Text>
-                <View style={styles.requestActions}>
-                    <Button onPress={() => navigation.navigate('ManageRequest')} style={styles.actionButton}>Manage</Button>
-                    {/* Add more action buttons if needed */}
-                </View>
-            </Card.Content>
-        </Card>
-    );
-
-    return (
-        <View style={styles.tabContainer}>
-            <SegmentedButtons
-                value={filterValue}
-                onValueChange={setFilterValue}
-                buttons={[
-                    { value: 'all', label: 'All Requests' },
-                    { value: 'supply', label: 'Supply' },
-                    { value: 'maintenance', label: 'Maintenance' },
-                ]}
-                style={styles.filterButtons}
-            />
-            {loading ? (
-                <ActivityIndicator size="large" color="#007AFF" />
-            ) : requests.length === 0 ? (
-                <Text>No requests found for the selected filter.</Text>
-            ) : (
-                <FlatList
-                    data={requests}
-                    keyExtractor={(item) => item.id}
-                    renderItem={renderRequestItem}
-                />
-            )}
         </View>
     );
 }
@@ -195,29 +211,35 @@ function UsersTab() {
         );
     };
 
+    const handleUserPress = (userId: string) => {
+        navigation.navigate('UserRequests', { userId }); // Navigate to UserRequestsScreen
+    };
+
     const renderUserItem = ({ item }: { item: User }) => (
-        <Card style={styles.userCard}>
-            <Card.Content style={styles.userCardContent}>
-                <View style={styles.userInfo}>
-                    <Text style={styles.userName}>{item.firstName} {item.lastName}</Text>
-                    <Text style={styles.userEmail}>{item.email}</Text>
-                    <Text style={styles.userRole}>Role: {item.role}</Text>
-                </View>
-                <View style={styles.userActions}>
-                    <IconButton
-                        icon="pencil"
-                        size={24}
-                        onPress={() => handleEditUser(item.id)}
-                    />
-                    <IconButton
-                        icon="delete"
-                        size={24}
-                        iconColor="red"
-                        onPress={() => handleDeleteUser(item.id)}
-                    />
-                </View>
-            </Card.Content>
-        </Card>
+        <TouchableOpacity onPress={() => handleUserPress(item.id)}>
+            <Card style={styles.userCard}>
+                <Card.Content style={styles.userCardContent}>
+                    <View style={styles.userInfo}>
+                        <Text style={styles.userName}>{item.firstName} {item.lastName}</Text>
+                        <Text style={styles.userEmail}>{item.email}</Text>
+                        <Text style={styles.userRole}>Role: {item.role}</Text>
+                    </View>
+                    <View style={styles.userActions}>
+                        <IconButton
+                            icon="pencil"
+                            size={24}
+                            onPress={() => handleEditUser(item.id)}
+                        />
+                        <IconButton
+                            icon="delete"
+                            size={24}
+                            iconColor="red"
+                            onPress={() => handleDeleteUser(item.id)}
+                        />
+                    </View>
+                </Card.Content>
+            </Card>
+        </TouchableOpacity>
     );
 
     if (loading) {
@@ -256,8 +278,10 @@ function ActivityTab() {
 }
 
 const AdminScreen = () => {
+    const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+
     return (
-        <View style={{ flex: 1 }}>
+        <>
             {/* Top Section: Key Performance Indicators (Carousel) */}
             <View style={styles.kpiSection}>
                 <Text style={styles.sectionTitle}>Overview</Text>
@@ -276,11 +300,11 @@ const AdminScreen = () => {
             >
                 <Tab.Screen name="Overview" component={OverviewTab} />
                 <Tab.Screen name="Supplies" component={SuppliesTab} />
-                <Tab.Screen name="Requests" component={RequestsTab} />
                 <Tab.Screen name="Users" component={UsersTab} />
                 <Tab.Screen name="Activity" component={ActivityTab} />
             </Tab.Navigator>
-        </View>
+
+        </>
     );
 };
 
@@ -351,6 +375,22 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         elevation: 2,
     },
+    detailText: {
+        fontSize: 14,
+        color: '#555',
+        marginBottom: 2,
+    },
+    supplyName: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#333',
+        marginBottom: 4,
+    },
+    status: {
+        fontSize: 14,
+        fontWeight: 'bold',
+        color: '#777',
+    },
     requestDetail: {
         fontSize: 14,
         color: '#555',
@@ -368,6 +408,32 @@ const styles = StyleSheet.create({
     actionButton: {
         marginRight: 8,
     },
+    title: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginBottom: 16,
+        color: '#333',
+    },
+    date: {
+        fontSize: 12,
+        color: '#888',
+        marginTop: 4,
+    },
+    backButton: {
+        marginTop: 20,
+        borderColor: '#007AFF',
+        color: '#007AFF',
+    },
+    container: {
+        flex: 1,
+        padding: 16,
+    },
 });
 
 export default AdminScreen;
+
+function useRoute<T extends keyof RootStackParamList>() {
+    return useNativeRoute<RouteProp<RootStackParamList, T>>();
+}
+
+
