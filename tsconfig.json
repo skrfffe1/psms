@@ -1,6 +1,7 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
+    // "jsx": "react-native",
     "strict": true,
     "paths": {
       "@/*": [
@@ -16,7 +17,7 @@
     "screens/_layout.js",
     "screens/LoginScreen.tsx",
     "nativewind-env.d.ts"
-  ],
+, "components/charts/BarChart.jsx"  ],
   "exclude": [
     "app/_layout.tsx"
   ]

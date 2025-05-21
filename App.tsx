@@ -7,6 +7,7 @@ import 'react-native-gesture-handler'; // Import for Drawer
 
 export default function App() {
   return (
+    
     <SafeAreaProvider>
       <AuthProvider>
         <AppNavigator />

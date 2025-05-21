@@ -173,7 +173,7 @@ const EditSupplyScreen: React.FC<EditSupplyScreenProps> = ({ navigation }) => {
                         icon="pencil"
                         mode="contained"
                         onPress={handleUpdateSupply}
-                        labelStyle={{ color: '#09090b' }}
+                        labelStyle={{ color: '#fafaf9' }}
                         elevation={5}
                     >
                         Update Supply
@@ -186,43 +186,56 @@ const EditSupplyScreen: React.FC<EditSupplyScreenProps> = ({ navigation }) => {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#fafaf9',
-    },
-    card: {
-        width: '90%',
-        backgroundColor: '#312c85',
-        borderRadius: 10,
-        padding: 20,
-        elevation: 5,
-    },
-    picker: {
-        marginBottom: 15,
-        width: '100%',
-        backgroundColor: '#fafaf9',
-        color: '#0c0a09'
-    },
-    input: {
-        marginBottom: 10,
-        width: '100%',
-        backgroundColor: '#fafaf9',
-    },
-    btn: {
-        marginTop: 10,
-        width: '48%',
-        backgroundColor: '#ffcc00',
-    },
-    center: {
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FAFAFA',
+    paddingVertical: 20,
+  },
+  card: {
+    width: '90%',
+    backgroundColor: '#fafaf9',
+    borderRadius: 8,
+    elevation: 2,
+    marginTop: 10,
+  },
+  picker: {
+    width: '100%',
+    color: '#0c0a09',
+  },
+  pickerContainer: {
+    marginBottom: 15,
+    width: '100%',
+  },
+  input: {
+    marginBottom: 10,
+    width: '100%',
+  },
+  btn: {
+    marginTop: 10,
+    width: '100%',
+    height: 40,
+    backgroundColor: '#1c398e',
+    borderRadius: 5,
+    
+  },
+  center: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  title: {
+    fontSize: 20,
+    color: '#0c0a09',
+    fontFamily: 'roboto',
+    fontWeight: 'bold',
+    marginBottom: 15,
+  },
+  errorText: {
+    color: '#FF6B6B',
+    marginBottom: 10,
+    fontSize: 14,
+    alignSelf: 'flex-start',
+  },
 });
 
 export default EditSupplyScreen;

@@ -39,7 +39,7 @@ interface HandleStatusChangeParams {
     requestId: string;
     supplyId: string;
     quantity: number;
-    newStatus: 'approved' | 'rejected';
+    newStatus: 'issued' | 'rejected';
     requestData: CombinedRequest;
 }
 
@@ -153,7 +153,7 @@ const ManageRequestsScreen = ({ navigation }: { navigation: StackNavigationProp<
 
             const currentQty = supplySnap.data().quantity;
 
-            if (newStatus === 'approved' && currentQty < quantity && 'quantity' in requestData) {
+            if (newStatus === 'issued' && currentQty < quantity && 'quantity' in requestData) {
                 Alert.alert('Error', 'Insufficient stock for approval');
                 return;
             }
@@ -162,7 +162,7 @@ const ManageRequestsScreen = ({ navigation }: { navigation: StackNavigationProp<
             const maintenanceRequestDocRef = doc(db, 'maintenanceRequests', requestId);
 
 
-            if (newStatus === 'approved') {
+            if (newStatus === 'issued') {
                 if ('quantity' in requestData) {
                     await updateDoc(supplyRef, { quantity: currentQty - requestData.quantity });
                     const issuanceLogRef = doc(collection(db, 'issuanceLogs'), requestId);
@@ -195,7 +195,7 @@ const ManageRequestsScreen = ({ navigation }: { navigation: StackNavigationProp<
                 setRequests(prev => prev.filter(item => item.id !== requestId));
             });
 
-            Alert.alert(newStatus === 'approved' ? 'Approved' : 'Rejected', `Request ${newStatus}`);
+            Alert.alert(newStatus === 'issued' ? 'Approved' : 'Rejected', `Request ${newStatus}`);
         } catch (error: any) {
             console.error(`Error handling ${newStatus}:`, error.message || error);
             Alert.alert('Error', `Failed to ${newStatus} request: ${error.message}`);
@@ -241,7 +241,7 @@ const ManageRequestsScreen = ({ navigation }: { navigation: StackNavigationProp<
                                         requestId: item.id,
                                         supplyId: item.supplyId,
                                         quantity: ('quantity' in item) ? item.quantity : 0,
-                                        newStatus: 'approved',
+                                        newStatus: 'issued',
                                         requestData: item,
                                     })}
                                 >
@@ -353,12 +353,12 @@ const styles = StyleSheet.create({
     },
     detailText: {
         fontSize: 14,
-        color: '#555',
+        color: '#0c0a09',
         lineHeight: 20,
     },
     reasonText: {
         fontSize: 14,
-        color: '#555',
+        color: '#0c0a09',
         lineHeight: 20,
         marginBottom: 8,
     },

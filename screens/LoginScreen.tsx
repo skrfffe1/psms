@@ -57,75 +57,73 @@ export default function LoginScreen(props: LoginScreenProps): JSX.Element {
 
   return (
     <PaperProvider>
-        <View style={[styles.container]}>
-          <Image
-            style={styles.backgroundImage}
-            source={require('../assets/images/background.png')}
-            contentFit="cover"
-            transition={1000}
-          />
-          <View style={[styles.center, styles.overlay]}>
-            <Text style={styles.title}>PSMS</Text>
-            {/* Uncomment the icon if needed */}
-            {/* <Ionicons style={styles.logo} name="folder-open-outline" size={50} color="white" /> */}
-          </View>
-          <Card style={styles.card} mode='outlined'>
-            <Card.Content style={styles.center}>
-              <TextInput
-                style={[styles.input, { backgroundColor: '#f5f5f4' }]}
-                value={email}
-                textColor='#0c0a09'
-                onChangeText={(text: string) => setEmail(text)}
-                placeholder="Email"
-                autoCapitalize="none"
-                autoCorrect={false}
-                keyboardType="email-address"
-                returnKeyType="next"
-                placeholderTextColor={'#a6a09b'}
-                onFocus={() => setEmail('')}
-                onBlur={() => setEmail(email.trim())}
-                secureTextEntry={true} // changed to false
-                // right={<TextInput.Icon icon="email" />}
-                error={!!loginError}
-                underlineColor='#0c0a09'
-                activeUnderlineColor='#57534d'
-              />
-              <TextInput
-        
-                style={[styles.input, { backgroundColor: '#f5f5f4' }]}
-                value={password}
-                onChangeText={(text: string) => setPassword(text)}
-                textColor='#0c0a09'
-                placeholder="Password"
-                autoCapitalize="none"
-                autoCorrect={false}
-                returnKeyType="done"
-                placeholderTextColor={'#a6a09b'}
-                onFocus={() => setPassword('')}
-                onBlur={() => setPassword(password.trim())}
-                secureTextEntry={true}
-                // right={<TextInput.Icon icon="eye" />}
-                error={!!loginError}
-                underlineColor='#0c0a09'
-                activeUnderlineColor='#57534d'
-              />
-              {loginError && <Text style={styles.errorText}>{loginError}</Text>}
-              <Button
-                style={[styles.btn]}
-                icon={({ size }) => (
-                  <Ionicons name="log-in-outline" color="#fafaf9" size={size} />
-                )}
-                mode="contained"
-                onPress={handleLogin}
-                loading={loading}
-                disabled={loading}
-              >
-                <Text style={{ color: '#fafaf9' }}>Login</Text>
-              </Button>
-            </Card.Content>
-          </Card>
+      <View style={[styles.container]}>
+        <Image
+          style={styles.backgroundImage}
+          source={require('../assets/images/background.png')}
+          contentFit="cover"
+          transition={1000}
+        />
+        <View style={[styles.center, styles.overlay]}>
         </View>
-      
+        <Card style={styles.card} mode='outlined'>
+          <Text style={styles.title}>PSMS</Text>
+          <Card.Content style={styles.center}>
+            <TextInput
+              style={[styles.input, { backgroundColor: '#f5f5f4' }]}
+              value={email}
+              textColor='#0c0a09'
+              onChangeText={(text: string) => setEmail(text)}
+              placeholder="Email"
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="email-address"
+              returnKeyType="next"
+              placeholderTextColor={'#a6a09b'}
+              onFocus={() => setEmail('')}
+              onBlur={() => setEmail(email.trim())}
+              secureTextEntry={false} // Changed to false, was true
+              // right={<TextInput.Icon icon="email" />}
+              error={!!loginError}
+              underlineColor='#0c0a09'
+              activeUnderlineColor='#57534d'
+            />
+            <TextInput
+
+              style={[styles.input, { backgroundColor: '#f5f5f4' }]}
+              value={password}
+              onChangeText={(text: string) => setPassword(text)}
+              textColor='#0c0a09'
+              placeholder="Password"
+              autoCapitalize="none"
+              autoCorrect={false}
+              returnKeyType="done"
+              placeholderTextColor={'#a6a09b'}
+              onFocus={() => setPassword('')}
+              onBlur={() => setPassword(password.trim())}
+              secureTextEntry={true}
+              // right={<TextInput.Icon icon="eye" />}
+              error={!!loginError}
+              underlineColor='#0c0a09'
+              activeUnderlineColor='#57534d'
+            />
+            {loginError && <Text style={styles.errorText}>{loginError}</Text>}
+            <Button
+              style={[styles.btn]}
+              icon={({ size }) => (
+                <Ionicons name="log-in-outline" color="#fafaf9" size={size} />
+              )}
+              mode="contained"
+              onPress={handleLogin}
+              loading={loading}
+              disabled={loading}
+            >
+              <Text style={{ color: '#fafaf9' }}>Login</Text>
+            </Button>
+          </Card.Content>
+        </Card>
+      </View>
+
     </PaperProvider>
   );
 }
@@ -143,7 +141,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   text: {
-    fontFamily: 'Poppins',
+    fontFamily: 'Poppins', // Make sure this font is available or remove.
     marginBottom: 10,
   },
   btn: {
@@ -159,10 +157,12 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 30,
-    color: 'white',
-    fontFamily: 'roboto',
+    color: '#1c398e',
+    fontFamily: 'roboto', // Make sure this font is available or remove.
     fontWeight: 'bold',
-    marginBottom: 2,
+    marginBottom: 20,
+    marginTop: 10,
+    alignSelf: 'center',
   },
   logo: {
     marginBottom: 5,

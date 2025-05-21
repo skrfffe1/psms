@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createDrawerNavigator, DrawerContentComponentProps, DrawerScreenProps, DrawerNavigationProp } from '@react-navigation/drawer';
+import { createDrawerNavigator, DrawerContentComponentProps, DrawerScreenProps } from '@react-navigation/drawer';
 import LoginScreen from '@/screens/LoginScreen';
 import SignupScreen from '@/screens/SignupScreen';
 import AdminScreen from '@/screens/AdminScreen';
@@ -12,10 +12,12 @@ import ViewSupplyScreen from '@/screens/ViewSupplyScreen';
 import RequestSupplyScreen from '@/screens/RequestSupplyScreen';
 import EditSupplyScreen from '@/screens/EditSupplyScreen';
 import MaintenanceRequestScreen from '@/screens/MaintenanceRequestScreen';
-import ManageRequestScreen from '../screens/ManageRequestScreen';
+import ManageRequestScreen from '@/screens/ManageRequestScreen';
+import ReturnSupplyScreen from '@/screens/ReturnSupplyScreen';
 import { useAuth } from '@/context/AuthContext';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native'; // Added TouchableOpacity
 import AddSupplyScreen from '@/screens/AddSupplyScreen';
+import UsersDetailsScreen from '@/screens/UsersDetailsScreen';
 import { Ionicons } from '@expo/vector-icons';
 import { DrawerContentScrollView, DrawerItemList, DrawerItem } from '@react-navigation/drawer';
 import { Avatar, Drawer as PaperDrawer, useTheme } from 'react-native-paper';
@@ -27,6 +29,7 @@ import {
 import { db } from '@/firebase/config';
 import { doc, getDoc } from 'firebase/firestore';
 
+
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Drawer = createDrawerNavigator<RootStackParamList>();
 
@@ -34,6 +37,7 @@ const AuthStack = () => (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Signup" component={SignupScreen} />
+        <Stack.Screen name="UserDetails" component={UsersDetailsScreen} />
     </Stack.Navigator>
 );
 
@@ -41,15 +45,17 @@ interface CustomDrawerContentProps extends DrawerContentComponentProps {
     role: string | null;
     logout: () => void;
     name: string | null;
+    profilePictureUrl: string | null; 
 }
 
-const CustomDrawerContent = ({ role, logout, name, ...props }: CustomDrawerContentProps) => {
+
+const CustomDrawerContent = ({ role, logout, profilePictureUrl, name, ...props }: CustomDrawerContentProps) => {
     const { colors } = useTheme();
     const { user } = useAuth(); // Get the current user object (should contain uid)
-    const [userName, setUserName] = useState<string | null>('User'); // Initial value
     const [loadingName, setLoadingName] = useState<boolean>(true);
+    const [userName, setUserName] = useState<string>(''); // Add this line
 
-     useEffect(() => {
+    useEffect(() => {
         const fetchUserName = async () => {
             if (user?.uid) {
                 try {
@@ -79,15 +85,33 @@ const CustomDrawerContent = ({ role, logout, name, ...props }: CustomDrawerConte
         fetchUserName();
     }, [user]);
 
+
     return (
         <View style={styles.container}>
             <DrawerContentScrollView {...props} contentContainerStyle={{ backgroundColor: colors.surface, flex: 1 }}>
                 <View style={styles.userInfoSection}>
-                    <Avatar.Icon size={50} icon="account-circle" color={colors.onPrimary} style={{ backgroundColor: colors.primaryContainer }} />
-                    <Text variant='titleMedium' style={{ color: colors.onPrimary, marginTop: 10 }}>
-                        {loadingName ? 'Loading...' : userName} {/* Display fetched name or loading */}
-                    </Text>
-                    <Text variant='labelSmall' style={{ color: colors.onPrimary }}>{role ? 'Logged in as ' + role : 'Not logged in'}</Text>
+                    {profilePictureUrl ? (
+                        <Avatar.Image
+                            size={50}
+                            source={{ uri: profilePictureUrl }}
+                            style={{ backgroundColor: colors.primaryContainer }}
+                        />
+                    ) : (
+                        <Avatar.Icon
+                            size={50}
+                            icon="account-circle"
+                            color={colors.onSurface}
+                            style={{ backgroundColor: colors.primaryContainer }}
+                        />
+                    )}
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '80%' }}>
+                        <View>
+                            <Text variant='titleMedium' style={{ color: colors.onPrimary, marginTop: 10 }}>
+                                {loadingName ? 'Loading...' : userName}
+                            </Text>
+                            <Text variant='labelSmall' style={{ color: colors.onPrimary }}>{role ? 'Logged in as ' + role : 'Not logged in'}</Text>
+                        </View>
+                    </View>
                 </View>
                 <PaperDrawer.Section>
                     <DrawerItemList {...props} />
@@ -110,7 +134,9 @@ interface User {
     firstName?: string | null;
     lastName?: string | null;
     email?: string | null;
+    uid?: string | null;
     [key: string]: any;
+    profilePictureUrl?: string | null;
 }
 
 const AppDrawer = () => {
@@ -118,6 +144,7 @@ const AppDrawer = () => {
     const [userName, setUserName] = useState<string | null>(null);
     const { colors } = useTheme();
     const [refreshSupplyList, setRefreshSupplyList] = useState<boolean>(false);
+    const [profilePictureUrl, setProfilePictureUrl] = useState<string | null>(null);
 
     const firstName = user?.firstName || '';
     const lastName = user?.lastName || '';
@@ -126,6 +153,7 @@ const AppDrawer = () => {
         if (user) {
             const fullName = `${firstName} ${lastName}`.trim();
             setUserName(fullName || 'User');
+            setProfilePictureUrl(user.profilePictureUrl || null); // Get the URL from the user object
         } else {
             setUserName(null);
         }
@@ -146,24 +174,42 @@ const AppDrawer = () => {
                 },
             }}
             drawerContent={(props) => (
-                <CustomDrawerContent
-                    {...props}
-                    role={role === 'admin' || role === 'head' || role === 'staff' ? role : null}
-                    logout={logout}
-                    name={userName}
-                />
+                <>
+                    <CustomDrawerContent
+                        {...props}
+                        role={role === 'admin' || role === 'head' || role === 'staff' ? role : null}
+                        logout={logout}
+                        name={userName}
+                        profilePictureUrl={profilePictureUrl} // Pass the URL
+                        
+                    />
+                </>
             )}
         >
             {role === 'admin' && (
-                <Drawer.Screen
-                    name="Admin"
-                    component={AdminScreen}
-                    options={{
-                        drawerIcon: ({ color, size }) => <Ionicons name="shield-checkmark-outline" size={size} color={color} />,
-                        drawerLabel: 'Admin Area',
-                        drawerLabelStyle: { marginLeft: 10 },
-                    }}
-                />
+                <>
+                    <Drawer.Screen
+                        name="Admin"
+                        component={AdminScreen}
+                        options={{
+                            drawerIcon: ({ color, size }) => <Ionicons name="shield-checkmark-outline" size={size} color={color} />,
+                            drawerLabel: 'Admin Area',
+                            drawerLabelStyle: { marginLeft: 10 },
+                        }}
+                    />
+                    <Drawer.Screen // Add AdminSignupScreen here
+
+                        name="Signup"
+                        component={SignupScreen}
+                        options={{
+                            drawerIcon: ({ color, size }) => <Ionicons name="person-add-outline" size={size} color={color} />,
+                            drawerLabel: 'Add User',
+                            drawerLabelStyle: { marginLeft: 10 },
+                            headerTitle: 'Sign Up',
+                        }}
+                    />
+                    {/* ... other admin screens ... */}
+                </>
             )}
             {role === 'head' && (
                 <Drawer.Screen
@@ -194,6 +240,7 @@ const AppDrawer = () => {
                         drawerIcon: ({ color, size }) => <Ionicons name="search-outline" size={size} color={color} />,
                         drawerLabel: 'View Supply',
                         drawerLabelStyle: { marginLeft: 10 },
+                        headerTitle: 'View Supply',
                     }}
                 >
                     {(props) => (
@@ -224,6 +271,7 @@ const AppDrawer = () => {
                             drawerIcon: ({ color, size }) => <Ionicons name="construct-outline" size={size} color={color} />,
                             drawerLabel: 'Maintenance Request',
                             drawerLabelStyle: { marginLeft: 10 },
+                            headerTitle: 'Maintenance Request',
                         }}
                     />
                 </>
@@ -236,6 +284,7 @@ const AppDrawer = () => {
                             drawerItemStyle: { display: 'none' },
                             drawerLabel: 'Edit Supply',
                             drawerLabelStyle: { marginLeft: 10 },
+                            headerTitle: 'Edit Supply',
                         }}
                     >
                         {(props) => (
@@ -253,6 +302,7 @@ const AppDrawer = () => {
                             drawerIcon: ({ color, size }) => <Ionicons name="layers-outline" size={size} color={color} />,
                             drawerLabel: 'Manage Requests',
                             drawerLabelStyle: { marginLeft: 10 },
+                            headerTitle: 'Manage Requests',
                         }}
                     />
                     <Drawer.Screen
@@ -262,10 +312,36 @@ const AppDrawer = () => {
                             drawerIcon: ({ color, size }) => <Ionicons name="add-outline" size={size} color={color} />,
                             drawerLabel: 'Add Supply',
                             drawerLabelStyle: { marginLeft: 10 },
+                            headerTitle: 'Add Supply',
+                        }}
+                    />
+                    <Drawer.Screen
+                        name="ReturnSupply"
+                        component={ReturnSupplyScreen}
+                        options={{
+                            drawerIcon: ({ color, size }) => <Ionicons name="arrow-undo-outline" size={size} color={color} />,
+                            drawerLabel: 'Return Supply',
+                            drawerLabelStyle: { marginLeft: 10 },
+                            headerTitle: 'Return Supply',
                         }}
                     />
                 </>
             )}
+
+            {(role === 'admin' || role === 'head' || role === 'staff') && (
+               // put here about user details
+                <Drawer.Screen
+                    name="UserDetails"
+                    component={UsersDetailsScreen}
+                    options={{
+                        drawerIcon: ({ color, size }) => <Ionicons name="book-outline" size={size} color={color} />,
+                        drawerLabel: 'User Details',
+                        drawerLabelStyle: { marginLeft: 10 },
+                        headerTitle: 'User Details',
+                    }}
+                />
+            )}
+
             <Drawer.Screen
                 name="Unauthorized"
                 component={UnauthorizedScreen}
@@ -312,7 +388,7 @@ const styles = StyleSheet.create({
         padding: 20,
         marginBottom: 10,
         alignItems: 'flex-start',
-        backgroundColor: '#193cb8'
+        backgroundColor: '#193cb8',
     },
     bottomDrawerSection: {
         marginBottom: 15,
@@ -322,5 +398,3 @@ const styles = StyleSheet.create({
 });
 
 export default AppNavigator;
-
-

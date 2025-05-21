@@ -1,0 +1,338 @@
+[debug] [2025-05-21T09:40:45.174Z] ----------------------------------------------------------------------
+[debug] [2025-05-21T09:40:45.180Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\Angelito\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy --only functions
+[debug] [2025-05-21T09:40:45.181Z] CLI Version:   14.4.0
+[debug] [2025-05-21T09:40:45.181Z] Platform:      win32
+[debug] [2025-05-21T09:40:45.181Z] Node Version:  v22.14.0
+[debug] [2025-05-21T09:40:45.182Z] Time:          Wed May 21 2025 17:40:45 GMT+0800 (Philippine Standard Time)
+[debug] [2025-05-21T09:40:45.182Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-05-21T09:40:45.616Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-05-21T09:40:45.617Z] > authorizing via signed-in user (capalesedra@gmail.com)
+[debug] [2025-05-21T09:40:45.618Z] [iam] checking project psms-app for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]
+[debug] [2025-05-21T09:40:45.620Z] Checked if tokens are valid: true, expires at: 1747821405574
+[debug] [2025-05-21T09:40:45.621Z] Checked if tokens are valid: true, expires at: 1747821405574
+[debug] [2025-05-21T09:40:45.623Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/psms-app:testIamPermissions [none]
+[debug] [2025-05-21T09:40:45.623Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/psms-app:testIamPermissions x-goog-quota-user=projects/psms-app
+[debug] [2025-05-21T09:40:45.623Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/psms-app:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2025-05-21T09:40:46.674Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/psms-app:testIamPermissions 200
+[debug] [2025-05-21T09:40:46.675Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/psms-app:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2025-05-21T09:40:46.676Z] Checked if tokens are valid: true, expires at: 1747821405574
+[debug] [2025-05-21T09:40:46.676Z] Checked if tokens are valid: true, expires at: 1747821405574
+[debug] [2025-05-21T09:40:46.676Z] >>> [apiv2][query] POST https://iam.googleapis.com/v1/projects/psms-app/serviceAccounts/psms-app@appspot.gserviceaccount.com:testIamPermissions [none]
+[debug] [2025-05-21T09:40:46.676Z] >>> [apiv2][body] POST https://iam.googleapis.com/v1/projects/psms-app/serviceAccounts/psms-app@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[debug] [2025-05-21T09:40:47.859Z] <<< [apiv2][status] POST https://iam.googleapis.com/v1/projects/psms-app/serviceAccounts/psms-app@appspot.gserviceaccount.com:testIamPermissions 200
+[debug] [2025-05-21T09:40:47.859Z] <<< [apiv2][body] POST https://iam.googleapis.com/v1/projects/psms-app/serviceAccounts/psms-app@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[info] 
+[info] === Deploying to 'psms-app'...
+[info] 
+[info] i  deploying functions 
+[info] Running command: npm --prefix "$RESOURCE_DIR" run lint
+[info] Running command: npm --prefix "$RESOURCE_DIR" run build
+[info] +  functions: Finished running predeploy script. 
+[debug] [2025-05-21T09:41:11.985Z] Checked if tokens are valid: true, expires at: 1747821405574
+[debug] [2025-05-21T09:41:11.986Z] Checked if tokens are valid: true, expires at: 1747821405574
+[debug] [2025-05-21T09:41:11.986Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/psms-app/services/cloudresourcemanager.googleapis.com [none]
+[debug] [2025-05-21T09:41:11.986Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/psms-app/services/cloudresourcemanager.googleapis.com x-goog-quota-user=projects/psms-app
+[debug] [2025-05-21T09:41:13.688Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/psms-app/services/cloudresourcemanager.googleapis.com 200
+[debug] [2025-05-21T09:41:13.689Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/psms-app/services/cloudresourcemanager.googleapis.com [omitted]
+[debug] [2025-05-21T09:41:13.689Z] Checked if tokens are valid: true, expires at: 1747821405574
+[debug] [2025-05-21T09:41:13.689Z] Checked if tokens are valid: true, expires at: 1747821405574
+[debug] [2025-05-21T09:41:13.689Z] >>> [apiv2][query] GET https://cloudresourcemanager.googleapis.com/v1/projects/psms-app [none]
+[debug] [2025-05-21T09:41:14.653Z] <<< [apiv2][status] GET https://cloudresourcemanager.googleapis.com/v1/projects/psms-app 200
+[debug] [2025-05-21T09:41:14.654Z] <<< [apiv2][body] GET https://cloudresourcemanager.googleapis.com/v1/projects/psms-app {"projectNumber":"695525318635","projectId":"psms-app","lifecycleState":"ACTIVE","name":"psms-app","labels":{"firebase":"enabled","firebase-core":"disabled"},"createTime":"2025-04-25T15:15:19.385390Z"}
+[info] i  functions: preparing codebase default for deployment 
+[info] i  functions: ensuring required API cloudfunctions.googleapis.com is enabled... 
+[debug] [2025-05-21T09:41:14.656Z] Checked if tokens are valid: true, expires at: 1747821405574
+[debug] [2025-05-21T09:41:14.656Z] Checked if tokens are valid: true, expires at: 1747821405574
+[debug] [2025-05-21T09:41:14.656Z] Checked if tokens are valid: true, expires at: 1747821405574
+[debug] [2025-05-21T09:41:14.656Z] Checked if tokens are valid: true, expires at: 1747821405574
+[info] i  functions: ensuring required API cloudbuild.googleapis.com is enabled... 
+[debug] [2025-05-21T09:41:14.657Z] Checked if tokens are valid: true, expires at: 1747821405574
+[debug] [2025-05-21T09:41:14.657Z] Checked if tokens are valid: true, expires at: 1747821405574
+[info] i  artifactregistry: ensuring required API artifactregistry.googleapis.com is enabled... 
+[debug] [2025-05-21T09:41:14.657Z] Checked if tokens are valid: true, expires at: 1747821405574
+[debug] [2025-05-21T09:41:14.658Z] Checked if tokens are valid: true, expires at: 1747821405574
+[debug] [2025-05-21T09:41:14.658Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/psms-app/services/cloudfunctions.googleapis.com [none]
+[debug] [2025-05-21T09:41:14.658Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/psms-app/services/cloudfunctions.googleapis.com x-goog-quota-user=projects/psms-app
+[debug] [2025-05-21T09:41:14.659Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/psms-app/services/runtimeconfig.googleapis.com [none]
+[debug] [2025-05-21T09:41:14.659Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/psms-app/services/runtimeconfig.googleapis.com x-goog-quota-user=projects/psms-app
+[debug] [2025-05-21T09:41:14.663Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/psms-app/services/cloudbuild.googleapis.com [none]
+[debug] [2025-05-21T09:41:14.663Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/psms-app/services/cloudbuild.googleapis.com x-goog-quota-user=projects/psms-app
+[debug] [2025-05-21T09:41:14.666Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/psms-app/services/artifactregistry.googleapis.com [none]
+[debug] [2025-05-21T09:41:14.666Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/psms-app/services/artifactregistry.googleapis.com x-goog-quota-user=projects/psms-app
+[debug] [2025-05-21T09:41:15.047Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/psms-app/services/cloudfunctions.googleapis.com 200
+[debug] [2025-05-21T09:41:15.047Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/psms-app/services/cloudfunctions.googleapis.com [omitted]
+[info] +  functions: required API cloudfunctions.googleapis.com is enabled 
+[debug] [2025-05-21T09:41:15.925Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/psms-app/services/cloudbuild.googleapis.com 200
+[debug] [2025-05-21T09:41:15.926Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/psms-app/services/cloudbuild.googleapis.com [omitted]
+[warn] !  functions: missing required API cloudbuild.googleapis.com. Enabling now... 
+[debug] [2025-05-21T09:41:15.927Z] Checked if tokens are valid: true, expires at: 1747821405574
+[debug] [2025-05-21T09:41:15.927Z] Checked if tokens are valid: true, expires at: 1747821405574
+[debug] [2025-05-21T09:41:15.927Z] >>> [apiv2][query] POST https://serviceusage.googleapis.com/v1/projects/psms-app/services/cloudbuild.googleapis.com:enable [none]
+[debug] [2025-05-21T09:41:15.927Z] >>> [apiv2][(partial)header] POST https://serviceusage.googleapis.com/v1/projects/psms-app/services/cloudbuild.googleapis.com:enable x-goog-quota-user=projects/psms-app
+[debug] [2025-05-21T09:41:15.934Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/psms-app/services/artifactregistry.googleapis.com 200
+[debug] [2025-05-21T09:41:15.934Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/psms-app/services/artifactregistry.googleapis.com [omitted]
+[warn] !  artifactregistry: missing required API artifactregistry.googleapis.com. Enabling now... 
+[debug] [2025-05-21T09:41:15.934Z] Checked if tokens are valid: true, expires at: 1747821405574
+[debug] [2025-05-21T09:41:15.935Z] Checked if tokens are valid: true, expires at: 1747821405574
+[debug] [2025-05-21T09:41:15.935Z] >>> [apiv2][query] POST https://serviceusage.googleapis.com/v1/projects/psms-app/services/artifactregistry.googleapis.com:enable [none]
+[debug] [2025-05-21T09:41:15.935Z] >>> [apiv2][(partial)header] POST https://serviceusage.googleapis.com/v1/projects/psms-app/services/artifactregistry.googleapis.com:enable x-goog-quota-user=projects/psms-app
+[debug] [2025-05-21T09:41:15.939Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/psms-app/services/runtimeconfig.googleapis.com 200
+[debug] [2025-05-21T09:41:15.940Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/psms-app/services/runtimeconfig.googleapis.com [omitted]
+[debug] [2025-05-21T09:41:16.437Z] <<< [apiv2][status] POST https://serviceusage.googleapis.com/v1/projects/psms-app/services/artifactregistry.googleapis.com:enable 200
+[debug] [2025-05-21T09:41:16.438Z] <<< [apiv2][body] POST https://serviceusage.googleapis.com/v1/projects/psms-app/services/artifactregistry.googleapis.com:enable [omitted]
+[debug] [2025-05-21T09:41:16.464Z] <<< [apiv2][status] POST https://serviceusage.googleapis.com/v1/projects/psms-app/services/cloudbuild.googleapis.com:enable 200
+[debug] [2025-05-21T09:41:16.464Z] <<< [apiv2][body] POST https://serviceusage.googleapis.com/v1/projects/psms-app/services/cloudbuild.googleapis.com:enable [omitted]
+[debug] [2025-05-21T09:41:26.440Z] Checked if tokens are valid: true, expires at: 1747821405574
+[debug] [2025-05-21T09:41:26.441Z] Checked if tokens are valid: true, expires at: 1747821405574
+[debug] [2025-05-21T09:41:26.441Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/psms-app/services/artifactregistry.googleapis.com [none]
+[debug] [2025-05-21T09:41:26.441Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/psms-app/services/artifactregistry.googleapis.com x-goog-quota-user=projects/psms-app
+[debug] [2025-05-21T09:41:26.472Z] Checked if tokens are valid: true, expires at: 1747821405574
+[debug] [2025-05-21T09:41:26.472Z] Checked if tokens are valid: true, expires at: 1747821405574
+[debug] [2025-05-21T09:41:26.472Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/psms-app/services/cloudbuild.googleapis.com [none]
+[debug] [2025-05-21T09:41:26.473Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/psms-app/services/cloudbuild.googleapis.com x-goog-quota-user=projects/psms-app
+[debug] [2025-05-21T09:41:27.709Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/psms-app/services/artifactregistry.googleapis.com 200
+[debug] [2025-05-21T09:41:27.710Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/psms-app/services/artifactregistry.googleapis.com [omitted]
+[info] +  artifactregistry: required API artifactregistry.googleapis.com is enabled 
+[debug] [2025-05-21T09:41:27.737Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/psms-app/services/cloudbuild.googleapis.com 200
+[debug] [2025-05-21T09:41:27.737Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/psms-app/services/cloudbuild.googleapis.com [omitted]
+[info] +  functions: required API cloudbuild.googleapis.com is enabled 
+[debug] [2025-05-21T09:41:27.739Z] Checked if tokens are valid: true, expires at: 1747821405574
+[debug] [2025-05-21T09:41:27.740Z] Checked if tokens are valid: true, expires at: 1747821405574
+[debug] [2025-05-21T09:41:27.740Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/psms-app/adminSdkConfig [none]
+[debug] [2025-05-21T09:41:28.402Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/psms-app/adminSdkConfig 200
+[debug] [2025-05-21T09:41:28.403Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/psms-app/adminSdkConfig {"projectId":"psms-app","storageBucket":"psms-app.firebasestorage.app"}
+[debug] [2025-05-21T09:41:28.404Z] Checked if tokens are valid: true, expires at: 1747821405574
+[debug] [2025-05-21T09:41:28.404Z] Checked if tokens are valid: true, expires at: 1747821405574
+[debug] [2025-05-21T09:41:28.405Z] >>> [apiv2][query] GET https://runtimeconfig.googleapis.com/v1beta1/projects/psms-app/configs [none]
+[debug] [2025-05-21T09:41:28.989Z] <<< [apiv2][status] GET https://runtimeconfig.googleapis.com/v1beta1/projects/psms-app/configs 200
+[debug] [2025-05-21T09:41:28.990Z] <<< [apiv2][body] GET https://runtimeconfig.googleapis.com/v1beta1/projects/psms-app/configs {}
+[debug] [2025-05-21T09:41:28.993Z] Validating nodejs source
+[debug] [2025-05-21T09:41:30.713Z] > [functions] package.json contents: {
+  "name": "functions",
+  "scripts": {
+    "lint": "eslint --ext .js,.ts .",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "serve": "npm run build && firebase emulators:start --only functions",
+    "shell": "npm run build && firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "22"
+  },
+  "main": "lib/index.js",
+  "dependencies": {
+    "firebase-admin": "^12.6.0",
+    "firebase-functions": "^6.0.1"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.12.0",
+    "@typescript-eslint/parser": "^5.12.0",
+    "eslint": "^8.9.0",
+    "eslint-config-google": "^0.14.0",
+    "eslint-plugin-import": "^2.25.4",
+    "firebase-functions-test": "^3.1.0",
+    "typescript": "^4.9.0"
+  },
+  "private": true
+}
+[debug] [2025-05-21T09:41:30.714Z] Building nodejs source
+[info] i  functions: Loading and analyzing source code for codebase default to determine what to deploy 
+[debug] [2025-05-21T09:41:30.715Z] Could not find functions.yaml. Must use http discovery
+[debug] [2025-05-21T09:41:30.731Z] Found firebase-functions binary at 'C:\Users\Angelito\Desktop\final\psms\functions\node_modules\.bin\firebase-functions'
+[info] Serving at port 8810
+
+[debug] [2025-05-21T09:41:31.993Z] Got response from /__/functions.yaml {"endpoints":{"aggregateCurrentlyIssuedItems":{"platform":"gcfv1","availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"serviceAccountEmail":null,"vpc":null,"scheduleTrigger":{"schedule":"every 15 minutes","retryConfig":{"retryCount":null,"maxDoublings":null,"maxRetryDuration":null,"maxBackoffDuration":null,"minBackoffDuration":null},"timeZone":null},"labels":{},"entryPoint":"aggregateCurrentlyIssuedItems"}},"specVersion":"v1alpha1","requiredAPIs":[{"api":"cloudscheduler.googleapis.com","reason":"Needed for scheduled functions."}],"extensions":{}}
+[info] i  extensions: ensuring required API firebaseextensions.googleapis.com is enabled... 
+[debug] [2025-05-21T09:41:36.053Z] Checked if tokens are valid: true, expires at: 1747821405574
+[debug] [2025-05-21T09:41:36.053Z] Checked if tokens are valid: true, expires at: 1747821405574
+[debug] [2025-05-21T09:41:36.054Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/psms-app/services/firebaseextensions.googleapis.com [none]
+[debug] [2025-05-21T09:41:36.054Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/psms-app/services/firebaseextensions.googleapis.com x-goog-quota-user=projects/psms-app
+[debug] [2025-05-21T09:41:37.327Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/psms-app/services/firebaseextensions.googleapis.com 200
+[debug] [2025-05-21T09:41:37.328Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/psms-app/services/firebaseextensions.googleapis.com [omitted]
+[warn] !  extensions: missing required API firebaseextensions.googleapis.com. Enabling now... 
+[debug] [2025-05-21T09:41:37.328Z] Checked if tokens are valid: true, expires at: 1747821405574
+[debug] [2025-05-21T09:41:37.328Z] Checked if tokens are valid: true, expires at: 1747821405574
+[debug] [2025-05-21T09:41:37.329Z] >>> [apiv2][query] POST https://serviceusage.googleapis.com/v1/projects/psms-app/services/firebaseextensions.googleapis.com:enable [none]
+[debug] [2025-05-21T09:41:37.329Z] >>> [apiv2][(partial)header] POST https://serviceusage.googleapis.com/v1/projects/psms-app/services/firebaseextensions.googleapis.com:enable x-goog-quota-user=projects/psms-app
+[debug] [2025-05-21T09:41:37.985Z] <<< [apiv2][status] POST https://serviceusage.googleapis.com/v1/projects/psms-app/services/firebaseextensions.googleapis.com:enable 200
+[debug] [2025-05-21T09:41:37.985Z] <<< [apiv2][body] POST https://serviceusage.googleapis.com/v1/projects/psms-app/services/firebaseextensions.googleapis.com:enable [omitted]
+[debug] [2025-05-21T09:41:48.008Z] Checked if tokens are valid: false, expires at: 1747821405574
+[debug] [2025-05-21T09:41:48.008Z] Checked if tokens are valid: false, expires at: 1747821405574
+[debug] [2025-05-21T09:41:48.009Z] > refreshing access token with scopes: []
+[debug] [2025-05-21T09:41:48.013Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-05-21T09:41:48.013Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-05-21T09:41:48.300Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-05-21T09:41:48.300Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-05-21T09:41:48.311Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/psms-app/services/firebaseextensions.googleapis.com [none]
+[debug] [2025-05-21T09:41:48.311Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/psms-app/services/firebaseextensions.googleapis.com x-goog-quota-user=projects/psms-app
+[debug] [2025-05-21T09:41:49.580Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/psms-app/services/firebaseextensions.googleapis.com 200
+[debug] [2025-05-21T09:41:49.580Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/psms-app/services/firebaseextensions.googleapis.com [omitted]
+[info] +  extensions: required API firebaseextensions.googleapis.com is enabled 
+[debug] [2025-05-21T09:41:49.583Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-05-21T09:41:49.583Z] > authorizing via signed-in user (capalesedra@gmail.com)
+[debug] [2025-05-21T09:41:49.584Z] [iam] checking project psms-app for permissions ["firebase.projects.get","firebaseextensions.instances.list"]
+[debug] [2025-05-21T09:41:49.584Z] Checked if tokens are valid: true, expires at: 1747824107301
+[debug] [2025-05-21T09:41:49.584Z] Checked if tokens are valid: true, expires at: 1747824107301
+[debug] [2025-05-21T09:41:49.584Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/psms-app:testIamPermissions [none]
+[debug] [2025-05-21T09:41:49.584Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/psms-app:testIamPermissions x-goog-quota-user=projects/psms-app
+[debug] [2025-05-21T09:41:49.584Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/psms-app:testIamPermissions {"permissions":["firebase.projects.get","firebaseextensions.instances.list"]}
+[debug] [2025-05-21T09:41:50.691Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/psms-app:testIamPermissions 200
+[debug] [2025-05-21T09:41:50.691Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/psms-app:testIamPermissions {"permissions":["firebase.projects.get","firebaseextensions.instances.list"]}
+[debug] [2025-05-21T09:41:50.692Z] Checked if tokens are valid: true, expires at: 1747824107301
+[debug] [2025-05-21T09:41:50.692Z] Checked if tokens are valid: true, expires at: 1747824107301
+[debug] [2025-05-21T09:41:50.692Z] >>> [apiv2][query] GET https://firebaseextensions.googleapis.com/v1beta/projects/psms-app/instances pageSize=100&pageToken=
+[debug] [2025-05-21T09:41:54.520Z] <<< [apiv2][status] GET https://firebaseextensions.googleapis.com/v1beta/projects/psms-app/instances 200
+[debug] [2025-05-21T09:41:54.520Z] <<< [apiv2][body] GET https://firebaseextensions.googleapis.com/v1beta/projects/psms-app/instances {}
+[info] i  functions: preparing functions directory for uploading... 
+[info] i  functions: packaged C:\Users\Angelito\Desktop\final\psms\functions (90.55 KB) for uploading 
+[debug] [2025-05-21T09:41:54.612Z] Checked if tokens are valid: true, expires at: 1747824107301
+[debug] [2025-05-21T09:41:54.612Z] Checked if tokens are valid: true, expires at: 1747824107301
+[debug] [2025-05-21T09:41:54.613Z] >>> [apiv2][query] GET https://cloudfunctions.googleapis.com/v1/projects/psms-app/locations/-/functions [none]
+[debug] [2025-05-21T09:41:55.501Z] <<< [apiv2][status] GET https://cloudfunctions.googleapis.com/v1/projects/psms-app/locations/-/functions 200
+[debug] [2025-05-21T09:41:55.501Z] <<< [apiv2][body] GET https://cloudfunctions.googleapis.com/v1/projects/psms-app/locations/-/functions {}
+[debug] [2025-05-21T09:41:55.501Z] Checked if tokens are valid: true, expires at: 1747824107301
+[debug] [2025-05-21T09:41:55.502Z] Checked if tokens are valid: true, expires at: 1747824107301
+[debug] [2025-05-21T09:41:55.502Z] >>> [apiv2][query] GET https://cloudfunctions.googleapis.com/v2/projects/psms-app/locations/-/functions filter=environment%3D%22GEN_2%22
+[debug] [2025-05-21T09:41:57.030Z] <<< [apiv2][status] GET https://cloudfunctions.googleapis.com/v2/projects/psms-app/locations/-/functions 200
+[debug] [2025-05-21T09:41:57.030Z] <<< [apiv2][body] GET https://cloudfunctions.googleapis.com/v2/projects/psms-app/locations/-/functions {}
+[info] i  functions: ensuring required API cloudscheduler.googleapis.com is enabled... 
+[debug] [2025-05-21T09:41:57.035Z] Checked if tokens are valid: true, expires at: 1747824107301
+[debug] [2025-05-21T09:41:57.035Z] Checked if tokens are valid: true, expires at: 1747824107301
+[debug] [2025-05-21T09:41:57.035Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/695525318635/services/cloudscheduler.googleapis.com [none]
+[debug] [2025-05-21T09:41:57.035Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/695525318635/services/cloudscheduler.googleapis.com x-goog-quota-user=projects/695525318635
+[debug] [2025-05-21T09:41:58.261Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/695525318635/services/cloudscheduler.googleapis.com 200
+[debug] [2025-05-21T09:41:58.262Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/695525318635/services/cloudscheduler.googleapis.com [omitted]
+[info] +  functions: required API cloudscheduler.googleapis.com is enabled 
+[debug] [2025-05-21T09:41:58.269Z] Checked if tokens are valid: true, expires at: 1747824107301
+[debug] [2025-05-21T09:41:58.269Z] Checked if tokens are valid: true, expires at: 1747824107301
+[debug] [2025-05-21T09:41:58.269Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/psms-app/services/cloudresourcemanager.googleapis.com [none]
+[debug] [2025-05-21T09:41:58.269Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/psms-app/services/cloudresourcemanager.googleapis.com x-goog-quota-user=projects/psms-app
+[debug] [2025-05-21T09:41:58.623Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/psms-app/services/cloudresourcemanager.googleapis.com 200
+[debug] [2025-05-21T09:41:58.623Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/psms-app/services/cloudresourcemanager.googleapis.com [omitted]
+[debug] [2025-05-21T09:41:58.623Z] Checked if tokens are valid: true, expires at: 1747824107301
+[debug] [2025-05-21T09:41:58.623Z] Checked if tokens are valid: true, expires at: 1747824107301
+[debug] [2025-05-21T09:41:58.623Z] >>> [apiv2][query] GET https://cloudresourcemanager.googleapis.com/v1/projects/psms-app [none]
+[debug] [2025-05-21T09:41:59.594Z] <<< [apiv2][status] GET https://cloudresourcemanager.googleapis.com/v1/projects/psms-app 200
+[debug] [2025-05-21T09:41:59.594Z] <<< [apiv2][body] GET https://cloudresourcemanager.googleapis.com/v1/projects/psms-app {"projectNumber":"695525318635","projectId":"psms-app","lifecycleState":"ACTIVE","name":"psms-app","labels":{"firebase":"enabled","firebase-core":"disabled"},"createTime":"2025-04-25T15:15:19.385390Z"}
+[debug] [2025-05-21T09:41:59.595Z] Checked if tokens are valid: true, expires at: 1747824107301
+[debug] [2025-05-21T09:41:59.596Z] Checked if tokens are valid: true, expires at: 1747824107301
+[debug] [2025-05-21T09:41:59.596Z] >>> [apiv2][query] GET https://cloudbilling.googleapis.com/v1/projects/psms-app/billingInfo [none]
+[debug] [2025-05-21T09:42:01.087Z] <<< [apiv2][status] GET https://cloudbilling.googleapis.com/v1/projects/psms-app/billingInfo 200
+[debug] [2025-05-21T09:42:01.087Z] <<< [apiv2][body] GET https://cloudbilling.googleapis.com/v1/projects/psms-app/billingInfo {"name":"projects/psms-app/billingInfo","projectId":"psms-app","billingAccountName":"billingAccounts/01658A-65F345-819582","billingEnabled":true}
+[debug] [2025-05-21T09:42:01.089Z] Checked if tokens are valid: true, expires at: 1747824107301
+[debug] [2025-05-21T09:42:01.089Z] Checked if tokens are valid: true, expires at: 1747824107301
+[debug] [2025-05-21T09:42:01.090Z] >>> [apiv2][query] POST https://cloudfunctions.googleapis.com/v1/projects/psms-app/locations/us-central1/functions:generateUploadUrl [none]
+[debug] [2025-05-21T09:42:01.090Z] >>> [apiv2][body] POST https://cloudfunctions.googleapis.com/v1/projects/psms-app/locations/us-central1/functions:generateUploadUrl {}
+[debug] [2025-05-21T09:42:11.240Z] <<< [apiv2][status] POST https://cloudfunctions.googleapis.com/v1/projects/psms-app/locations/us-central1/functions:generateUploadUrl 200
+[debug] [2025-05-21T09:42:11.241Z] <<< [apiv2][body] POST https://cloudfunctions.googleapis.com/v1/projects/psms-app/locations/us-central1/functions:generateUploadUrl {"uploadUrl":"https://storage.googleapis.com/uploads-541094316146.us-central1.cloudfunctions.appspot.com/fc68949c-be29-43cb-9f57-354d79cd7be5.zip?GoogleAccessId=service-695525318635@gcf-admin-robot.iam.gserviceaccount.com&Expires=1747822329&Signature=JY76JvMmdLhp%2FWU03bqmD7nYNFVZ7RiI379ojdM5LwsBFxSE8gPEtZS%2FAEDVjvgEw6gs11kfUhbhN%2F5DiEuncodgxzctPjuaqizFmqcp7rZVXL55xCjRv7fjN04TomEWku7gMNSfq2mh1fmXcIpG5qe%2F154S2oid%2B2dUPVV0Hw9F1oLyoUOoqtFkcgvPmcS6TsvvPGjGhTbtowIySVhE08i%2B26ZG8r02buEccX6L%2F89Pyw3BFN0bJKVF7E4X%2BbF3nBR0sJh9dGk7RqTDV1Kqvp3Bi0Hsecgz70UwpxOsSJVaYxXWD5c30SKBLZvaRUynO52JwyK7AFoPIlDCfyeHKg%3D%3D"}
+[debug] [2025-05-21T09:42:11.243Z] >>> [apiv2][query] PUT https://storage.googleapis.com/uploads-541094316146.us-central1.cloudfunctions.appspot.com/fc68949c-be29-43cb-9f57-354d79cd7be5.zip GoogleAccessId=service-695525318635%40gcf-admin-robot.iam.gserviceaccount.com&Expires=1747822329&Signature=JY76JvMmdLhp%2FWU03bqmD7nYNFVZ7RiI379ojdM5LwsBFxSE8gPEtZS%2FAEDVjvgEw6gs11kfUhbhN%2F5DiEuncodgxzctPjuaqizFmqcp7rZVXL55xCjRv7fjN04TomEWku7gMNSfq2mh1fmXcIpG5qe%2F154S2oid%2B2dUPVV0Hw9F1oLyoUOoqtFkcgvPmcS6TsvvPGjGhTbtowIySVhE08i%2B26ZG8r02buEccX6L%2F89Pyw3BFN0bJKVF7E4X%2BbF3nBR0sJh9dGk7RqTDV1Kqvp3Bi0Hsecgz70UwpxOsSJVaYxXWD5c30SKBLZvaRUynO52JwyK7AFoPIlDCfyeHKg%3D%3D
+[debug] [2025-05-21T09:42:11.243Z] >>> [apiv2][body] PUT https://storage.googleapis.com/uploads-541094316146.us-central1.cloudfunctions.appspot.com/fc68949c-be29-43cb-9f57-354d79cd7be5.zip [stream]
+[debug] [2025-05-21T09:42:12.247Z] <<< [apiv2][status] PUT https://storage.googleapis.com/uploads-541094316146.us-central1.cloudfunctions.appspot.com/fc68949c-be29-43cb-9f57-354d79cd7be5.zip 200
+[debug] [2025-05-21T09:42:12.247Z] <<< [apiv2][body] PUT https://storage.googleapis.com/uploads-541094316146.us-central1.cloudfunctions.appspot.com/fc68949c-be29-43cb-9f57-354d79cd7be5.zip [omitted]
+[info] +  functions: functions folder uploaded successfully 
+[info] i  functions: creating Node.js 22 (1st Gen) function aggregateCurrentlyIssuedItems(us-central1)... 
+[debug] [2025-05-21T09:42:12.258Z] Checked if tokens are valid: true, expires at: 1747824107301
+[debug] [2025-05-21T09:42:12.259Z] Checked if tokens are valid: true, expires at: 1747824107301
+[debug] [2025-05-21T09:42:12.259Z] >>> [apiv2][query] POST https://cloudfunctions.googleapis.com/v1/projects/psms-app/locations/us-central1/functions [none]
+[debug] [2025-05-21T09:42:12.259Z] >>> [apiv2][body] POST https://cloudfunctions.googleapis.com/v1/projects/psms-app/locations/us-central1/functions {"name":"projects/psms-app/locations/us-central1/functions/aggregateCurrentlyIssuedItems","sourceUploadUrl":"https://storage.googleapis.com/uploads-541094316146.us-central1.cloudfunctions.appspot.com/fc68949c-be29-43cb-9f57-354d79cd7be5.zip?GoogleAccessId=service-695525318635@gcf-admin-robot.iam.gserviceaccount.com&Expires=1747822329&Signature=JY76JvMmdLhp%2FWU03bqmD7nYNFVZ7RiI379ojdM5LwsBFxSE8gPEtZS%2FAEDVjvgEw6gs11kfUhbhN%2F5DiEuncodgxzctPjuaqizFmqcp7rZVXL55xCjRv7fjN04TomEWku7gMNSfq2mh1fmXcIpG5qe%2F154S2oid%2B2dUPVV0Hw9F1oLyoUOoqtFkcgvPmcS6TsvvPGjGhTbtowIySVhE08i%2B26ZG8r02buEccX6L%2F89Pyw3BFN0bJKVF7E4X%2BbF3nBR0sJh9dGk7RqTDV1Kqvp3Bi0Hsecgz70UwpxOsSJVaYxXWD5c30SKBLZvaRUynO52JwyK7AFoPIlDCfyeHKg%3D%3D","entryPoint":"aggregateCurrentlyIssuedItems","runtime":"nodejs22","dockerRegistry":"ARTIFACT_REGISTRY","labels":{"deployment-tool":"cli-firebase","deployment-scheduled":"true","firebase-functions-hash":"2ec646ea6e9f403520d87abb5461f888d8c1053a"},"eventTrigger":{"eventType":"google.pubsub.topic.publish","resource":"projects/psms-app/topics/firebase-schedule-aggregateCurrentlyIssuedItems-us-central1"},"minInstances":null,"maxInstances":null,"ingressSettings":null,"environmentVariables":{"FIREBASE_CONFIG":"{\"projectId\":\"psms-app\",\"storageBucket\":\"psms-app.firebasestorage.app\"}","GCLOUD_PROJECT":"psms-app","EVENTARC_CLOUD_EVENT_SOURCE":"projects/psms-app/locations/us-central1/functions/aggregateCurrentlyIssuedItems"},"serviceAccountEmail":null,"availableMemoryMb":null,"timeout":null,"vpcConnector":null,"vpcConnectorEgressSettings":null,"buildEnvironmentVariables":{"GOOGLE_NODE_RUN_SCRIPTS":""}}
+[debug] [2025-05-21T09:42:12.834Z] <<< [apiv2][status] POST https://cloudfunctions.googleapis.com/v1/projects/psms-app/locations/us-central1/functions 400
+[debug] [2025-05-21T09:42:12.834Z] <<< [apiv2][body] POST https://cloudfunctions.googleapis.com/v1/projects/psms-app/locations/us-central1/functions {"error":{"code":400,"message":"Failed to create 1st Gen function projects/psms-app/locations/us-central1/functions/aggregateCurrentlyIssuedItems: runtime: Runtime validation errors: [error_code: INVALID_RUNTIME\nmessage: \"Runtime \\\"nodejs22\\\" is not supported on GCF Gen1\"\n]","status":"INVALID_ARGUMENT"}}
+[warn] !  functions: failed to create function projects/psms-app/locations/us-central1/functions/aggregateCurrentlyIssuedItems 
+[error] Failed to create function projects/psms-app/locations/us-central1/functions/aggregateCurrentlyIssuedItems
+[debug] [2025-05-21T09:42:12.844Z] Total Function Deployment time: 581
+[debug] [2025-05-21T09:42:12.844Z] 1 Functions Deployed
+[debug] [2025-05-21T09:42:12.844Z] 1 Functions Errored
+[debug] [2025-05-21T09:42:12.844Z] 0 Function Deployments Aborted
+[debug] [2025-05-21T09:42:12.844Z] Average Function Deployment time: 580
+[info] 
+[info] Functions deploy had errors with the following functions:
+	aggregateCurrentlyIssuedItems(us-central1)
+[debug] [2025-05-21T09:42:12.993Z] Checked if tokens are valid: true, expires at: 1747824107301
+[debug] [2025-05-21T09:42:12.993Z] Checked if tokens are valid: true, expires at: 1747824107301
+[debug] [2025-05-21T09:42:12.994Z] >>> [apiv2][query] GET https://artifactregistry.googleapis.com/v1/projects/psms-app/locations/us-central1/repositories/gcf-artifacts [none]
+[debug] [2025-05-21T09:42:14.540Z] <<< [apiv2][status] GET https://artifactregistry.googleapis.com/v1/projects/psms-app/locations/us-central1/repositories/gcf-artifacts 404
+[debug] [2025-05-21T09:42:14.541Z] <<< [apiv2][body] GET https://artifactregistry.googleapis.com/v1/projects/psms-app/locations/us-central1/repositories/gcf-artifacts {"error":{"code":404,"message":"Requested entity was not found.","status":"NOT_FOUND"}}
+[debug] [2025-05-21T09:42:14.541Z] Failed to check artifact cleanup policy for region us-central1: Request to https://artifactregistry.googleapis.com/v1/projects/psms-app/locations/us-central1/repositories/gcf-artifacts had HTTP Error: 404, Requested entity was not found. {"name":"FirebaseError","children":[],"context":{"body":{"error":{"code":404,"message":"Requested entity was not found.","status":"NOT_FOUND"}},"response":{"statusCode":404}},"exit":1,"message":"Request to https://artifactregistry.googleapis.com/v1/projects/psms-app/locations/us-central1/repositories/gcf-artifacts had HTTP Error: 404, Requested entity was not found.","status":404}
+[debug] [2025-05-21T09:42:14.542Z] Functions deploy failed.
+[debug] [2025-05-21T09:42:14.543Z] {
+  "endpoint": {
+    "id": "aggregateCurrentlyIssuedItems",
+    "project": "psms-app",
+    "region": "us-central1",
+    "entryPoint": "aggregateCurrentlyIssuedItems",
+    "platform": "gcfv1",
+    "runtime": "nodejs22",
+    "scheduleTrigger": {
+      "schedule": "every 15 minutes",
+      "timeZone": null,
+      "retryConfig": {
+        "maxBackoffSeconds": null,
+        "minBackoffSeconds": null,
+        "maxRetrySeconds": null,
+        "retryCount": null,
+        "maxDoublings": null
+      }
+    },
+    "labels": {
+      "deployment-tool": "cli-firebase"
+    },
+    "serviceAccount": null,
+    "ingressSettings": null,
+    "availableMemoryMb": null,
+    "timeoutSeconds": null,
+    "maxInstances": null,
+    "minInstances": null,
+    "vpc": null,
+    "environmentVariables": {
+      "FIREBASE_CONFIG": "{\"projectId\":\"psms-app\",\"storageBucket\":\"psms-app.firebasestorage.app\"}",
+      "GCLOUD_PROJECT": "psms-app",
+      "EVENTARC_CLOUD_EVENT_SOURCE": "projects/psms-app/locations/us-central1/functions/aggregateCurrentlyIssuedItems"
+    },
+    "codebase": "default",
+    "targetedByOnly": false,
+    "hash": "2ec646ea6e9f403520d87abb5461f888d8c1053a"
+  },
+  "op": "create",
+  "original": {
+    "name": "FirebaseError",
+    "children": [],
+    "context": {
+      "function": "projects/psms-app/locations/us-central1/functions/aggregateCurrentlyIssuedItems"
+    },
+    "exit": 1,
+    "message": "Failed to create function projects/psms-app/locations/us-central1/functions/aggregateCurrentlyIssuedItems",
+    "original": {
+      "name": "FirebaseError",
+      "children": [],
+      "context": {
+        "body": {
+          "error": {
+            "code": 400,
+            "message": "Failed to create 1st Gen function projects/psms-app/locations/us-central1/functions/aggregateCurrentlyIssuedItems: runtime: Runtime validation errors: [error_code: INVALID_RUNTIME\nmessage: \"Runtime \\\"nodejs22\\\" is not supported on GCF Gen1\"\n]",
+            "status": "INVALID_ARGUMENT"
+          }
+        },
+        "response": {
+          "statusCode": 400
+        }
+      },
+      "exit": 1,
+      "message": "Request to https://cloudfunctions.googleapis.com/v1/projects/psms-app/locations/us-central1/functions had HTTP Error: 400, Failed to create 1st Gen function projects/psms-app/locations/us-central1/functions/aggregateCurrentlyIssuedItems: runtime: Runtime validation errors: [error_code: INVALID_RUNTIME\nmessage: \"Runtime \\\"nodejs22\\\" is not supported on GCF Gen1\"\n]",
+      "status": 400
+    },
+    "status": 400,
+    "code": 400
+  }
+}
+[debug] [2025-05-21T09:42:14.601Z] Error: Failed to create function aggregateCurrentlyIssuedItems in region us-central1
+    at C:\Users\Angelito\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\functions\release\fabricator.js:52:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Fabricator.createV1Function (C:\Users\Angelito\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\functions\release\fabricator.js:182:32)
+    at async Fabricator.createEndpoint (C:\Users\Angelito\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\functions\release\fabricator.js:134:13)
+    at async handle (C:\Users\Angelito\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\functions\release\fabricator.js:89:17)
+[error] 
+[error] Error: There was an error deploying functions

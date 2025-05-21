@@ -39,6 +39,7 @@ const styles = StyleSheet.create({
     button: {
         flex: 1,
         marginHorizontal: 5,
+        backgroundColor: '#1c398e',
     },
 });
 

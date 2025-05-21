@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { View, StyleSheet, Alert, FlatList, RefreshControl, Animated } from 'react-native';
-import { getFirestore, collection, query, where, onSnapshot, FirestoreError, orderBy } from 'firebase/firestore';
+import { View, StyleSheet, Alert, FlatList, RefreshControl, Animated, TouchableOpacity } from 'react-native';
+import { getFirestore, collection, query, where, onSnapshot, FirestoreError, orderBy, getDocs  } from 'firebase/firestore';
 import { useAuth } from '../context/AuthContext';
-import { ActivityIndicator, Text, Provider, BottomNavigation, Card } from 'react-native-paper';
+import { ActivityIndicator, Text, Provider, BottomNavigation, Card, Searchbar } from 'react-native-paper'; // Added Searchbar
 import { Ionicons } from '@expo/vector-icons';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@/types/navigation';
@@ -12,6 +12,7 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 import ViewSupplyScreen from './ViewSupplyScreen';
 import RequestSupplyScreen from './RequestSupplyScreen';
 import MaintenanceRequestScreen from './MaintenanceRequestScreen';
+import ReturnSupplyScreen from './ReturnSupplyScreen';
 
 interface Request {
     id: string;
@@ -22,6 +23,14 @@ interface Request {
     createdAt: Date | null;
     type: 'supply' | 'maintenance';
     maintenanceStatus?: 'pending' | 'approved' | 'rejected'; // Add maintenance status
+    supplyDescription?: string; // Add description for supply
+}
+
+interface Supply {  // Define the Supply interface
+    id: string;
+    name: string;
+    description: string;
+    quantity: number;
 }
 
 interface StaffScreenProps {
@@ -43,6 +52,24 @@ const StaffRequestsComponent = ({ filter }: { filter: 'all' | 'supply' | 'mainte
     const db = getFirestore();
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const unsubscribeRefs = useRef<(() => void)[]>([]);
+    const [supplies, setSupplies] = useState<Supply[]>([]); // State for storing supplies
+    const [searchQuery, setSearchQuery] = useState(''); // State for search query
+
+    // Fetch supplies -  fetch and store supplies
+    const fetchSupplies = useCallback(async () => {
+        try {
+            const suppliesCollection = collection(db, 'supplies');
+            const suppliesSnapshot = await getDocs(suppliesCollection);
+            const suppliesData = suppliesSnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...(doc.data() as Omit<Supply, 'id'>),
+            })) as Supply[];
+            setSupplies(suppliesData);
+        } catch (error) {
+            console.error("Failed to fetch supplies:", error);
+            Alert.alert('Error', 'Failed to fetch supplies.');
+        }
+    }, [db]);
 
     const fetchRequests = useCallback(() => {
         if (!user) return;
@@ -69,6 +96,8 @@ const StaffRequestsComponent = ({ filter }: { filter: 'all' | 'supply' | 'mainte
                             const supplyRequestsData = snapshot.docs.map((doc) => {
                                 const data = doc.data();
                                 const createdAt = data.createdAt?.toDate() || null;
+                                // Find the supply data based on supplyId
+                                const supply = supplies.find((s) => s.id === data.supplyId);
                                 return {
                                     id: doc.id,
                                     supplyName: data.supplyName,
@@ -77,6 +106,7 @@ const StaffRequestsComponent = ({ filter }: { filter: 'all' | 'supply' | 'mainte
                                     reason: data.reason,
                                     createdAt,
                                     type: 'supply' as const,
+                                    supplyDescription: supply ? supply.description : 'Description N/A', // Add Description
                                 };
                             });
                             allRequests = [...allRequests, ...supplyRequestsData];
@@ -165,8 +195,12 @@ const StaffRequestsComponent = ({ filter }: { filter: 'all' | 'supply' | 'mainte
             setRefreshing(false);
         });
 
-    }, [db, user, filter]);
+    }, [db, user, filter, supplies]); // Add supplies to the dependency array
 
+
+    useEffect(() => {
+        fetchSupplies(); // Fetch supplies
+    }, [fetchSupplies]);
 
     useEffect(() => {
         fetchRequests();
@@ -196,11 +230,19 @@ const StaffRequestsComponent = ({ filter }: { filter: 'all' | 'supply' | 'mainte
         }
     }, []);
 
+    // Filter requests by search query
+    const filteredRequests = requests.filter(request =>
+        request.supplyName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (request.supplyDescription && request.supplyDescription.toLowerCase().includes(searchQuery.toLowerCase())) || //search description
+        request.reason.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     const renderItem = useCallback(({ item }: { item: Request }) => {
         return (
             <Card style={[styles.requestCard]}>
                 <Card.Content>
                     <Text style={styles.supplyName}>Supply: {item.supplyName}</Text>
+                    {item.supplyDescription && <Text style={styles.supplyDescription}>Description: {item.supplyDescription}</Text>}
                     <Text style={styles.quantity}>Quantity: {item.quantity}</Text>
                     <Text style={[styles.status, { color: getStatusColor(item.status) }]}>
                         Status: {item.status}
@@ -221,15 +263,21 @@ const StaffRequestsComponent = ({ filter }: { filter: 'all' | 'supply' | 'mainte
 
     return (
         <Animated.View style={{ flex: 1, opacity: fadeAnim, backgroundColor: '#f0f4f8' }}>
+            <Searchbar
+                placeholder="Search Requests..."
+                onChangeText={setSearchQuery}
+                value={searchQuery}
+                style={styles.searchBar}
+            />
             {loading ? (
                 <View style={styles.loadingContainer}>
                     <ActivityIndicator size="large" color="#007AFF" />
                 </View>
-            ) : requests.length === 0 ? (
+            ) : filteredRequests.length === 0 ? (
                 <Text style={styles.noRequestsText}>You have not made any requests yet.</Text>
             ) : (
                 <FlatList
-                    data={requests}
+                    data={filteredRequests}
                     renderItem={renderItem}
                     keyExtractor={(item) => item.id}
                     style={{ width: '100%', backgroundColor: '#fafaf9' }}
@@ -260,9 +308,10 @@ const StaffScreen: React.FC<StaffScreenProps> = ({ navigation }) => {
         component: React.FC<any>;
     }[]>([
         { key: 'ViewSupply', title: 'View Supply', icon: 'list', component: ViewSupplyScreen },
-        { key: 'RequestSupply', title: 'Request Supply', icon: 'add-circle', component: RequestSupplyScreen },
-        { key: 'StaffRequests', title: 'Requests', icon: 'list-outline', component: StaffRequestsComponent },
+        { key: 'StaffRequests', title: 'Requests', icon: 'book-outline', component: StaffRequestsComponent },
+        { key: 'RequestSupply', title: 'Request Supply', icon: 'add-circle', component: RequestSupplyScreen },      
         { key: 'MaintenanceRequest', title: 'Maintenance', icon: 'build', component: MaintenanceRequestScreen },
+        { key: 'ReturnSupply', title: 'Return', icon: 'return-up-back', component: ReturnSupplyScreen },
     ]);
 
     const renderScene = useCallback(({ route }: { route: any }) => {
@@ -302,7 +351,7 @@ const StaffScreen: React.FC<StaffScreenProps> = ({ navigation }) => {
                     />
                     <TopTab.Screen
                         name="MaintenanceRequests"
-                        component={MaintenanceRequestsComponent}  // Use the defined component
+                        component={MaintenanceRequestsComponent}  // Use the defined component
                         options={{ tabBarLabel: 'Maintenance' }}
                     />
                 </TopTab.Navigator>
@@ -408,8 +457,18 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginBottom: 8,
         fontFamily: 'System',
-    }
+    },
+    searchBar: {
+        margin: 10,
+        marginBottom: 0,
+        backgroundColor: '#f5f5f4',
+    },
+    supplyDescription: {
+        fontSize: 14,
+        color: '#666',
+        marginBottom: 8,
+        fontFamily: 'System',
+    },
 });
 
 export default StaffScreen;
-
