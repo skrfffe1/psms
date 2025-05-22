@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "psms-app",
-    "slug": "psms-app",
+    "slug": "property-supplies-management-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/lnu-logo.png",
@@ -43,8 +43,9 @@
         "origin": false
       },
       "eas": {
-        "projectId": "afeb2de3-b0a9-49ff-989c-501dc65c2294"
+        "projectId": "007cc5de-1f2b-4414-ae8d-32efaaf6af5d"
       }
-    }
+    },
+    "owner": "skrfffe1"
   }
 }

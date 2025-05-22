@@ -17,7 +17,7 @@ interface AddSupplyScreenProps {
 
 interface Supply {
   supplyName: string;
-  quantity: string;
+  quantity: number;
   description: string;
   category: string;
   createdAt: Date;
@@ -52,7 +52,7 @@ export default function AddSupplyScreen({navigation}: AddSupplyScreenProps): JSX
     try {
       const newSupply: Supply = {
         supplyName,
-        quantity,
+        quantity: Number(quantity),
         description,
         category,
         createdAt: new Date(),

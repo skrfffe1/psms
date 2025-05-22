@@ -44,11 +44,11 @@ export default function SupplyQuantityPieChart({ containerWidth, maxSlices = 8 }
 
         // Set up the real-time listener
         const unsubscribe = onSnapshot(suppliesCollectionRef, (querySnapshot) => {
-            let rawData: { name: string; quantity: number }[] = [];
+            let rawData: { supplyName: string; quantity: number }[] = [];
             querySnapshot.docs.forEach(doc => {
                 const data = doc.data();
                 if (typeof data.supplyName === 'string' && data.supplyName.trim() !== '' && typeof data.quantity === 'number' && data.quantity > 0) {
-                    rawData.push({ name: data.supplyName, quantity: data.quantity });
+                    rawData.push({ supplyName: data.supplyName, quantity: data.quantity });
                 } else {
                     console.warn(`Skipping supply document ID: ${doc.id} due to invalid supplyName or quantity. Data:`, data);
                 }
@@ -71,14 +71,14 @@ export default function SupplyQuantityPieChart({ containerWidth, maxSlices = 8 }
                         otherQuantity += rawData[i].quantity;
                     }
                     if (otherQuantity > 0) {
-                        processedData.push({ name: 'Other', quantity: otherQuantity });
+                        processedData.push({ supplyName: 'Other', quantity: otherQuantity });
                     }
                 } else {
                     processedData = rawData;
                 }
 
                 const formattedData = processedData.map((item, index) => ({
-                    name: item.name,
+                    name: item.supplyName,
                     population: item.quantity,
                     color: SLICE_COLORS[index % SLICE_COLORS.length],
                     legendFontColor: '#fafaf9',

@@ -116,7 +116,10 @@ const ManageRequestsScreen = ({ navigation }: { navigation: StackNavigationProp<
             uniqueRequests.sort((a, b) => {
                 const getDate = (item: CombinedRequest) => {
                     const dateValue = (item as any).createdAt ?? (item as any).requestDate ?? new Date(0);
-                    if (dateValue && typeof dateValue.toDate === 'function') {
+                    if (dateValue === null || dateValue === undefined) {
+                        return new Date(0); // fallback to epoch if date is missing
+                    }
+                    if (typeof dateValue.toDate === 'function') {
                         return dateValue.toDate();
                     }
                     return dateValue instanceof Date ? dateValue : new Date(dateValue);
