@@ -1,9 +1,7 @@
 // screens/ReturnSupplyScreen.tsx (Admin/Head Version)
 
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, FlatList, Alert } from 'react-native';
-// Import Menu, Portal, and Provider from react-native-paper
-// Note: We use 'Provider' here just to indicate it's from RNP, but it should be used at the app root.
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, StyleSheet, FlatList, Alert, RefreshControl } from 'react-native';
 import { Text, Button, Card, Checkbox, ActivityIndicator, Divider, Menu, Portal, Provider } from 'react-native-paper';
 import { db } from '../firebase/config';
 import { collection, query, where, getDocs, doc, runTransaction, Timestamp } from 'firebase/firestore';
@@ -37,33 +35,20 @@ const ReturnSupplyScreen: React.FC = () => {
     const { user, loading: authLoading, role } = useAuth();
     const [issuedItems, setIssuedItems] = useState<IssuanceLogItem[]>([]);
     const [selectedItems, setSelectedItems] = useState<string[]>([]); // Store IDs of selected issuance logs
-    // NEW: State to store the selected condition for each item by its ID
-    const [selectedConditions, setSelectedConditions] = useState<{ [key: string]: string }>({});
+    const [selectedConditions, setSelectedConditions] = useState<{ [key: string]: string }>({}); // NEW: State to store the selected condition for each item by its ID
     const [menuVisible, setMenuVisible] = useState<{ [key: string]: boolean }>({}); // To control menu visibility per item
     const [loading, setLoading] = useState(true);
     const [isReturning, setIsReturning] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [refreshing, setRefreshing] = useState(false); // State for RefreshControl
 
     // Only allow admin/head roles to access this screen's functionality
     const isAuthorized = role === 'admin' || role === 'head';
 
-    useEffect(() => {
-        if (!authLoading && user) {
-            if (isAuthorized) {
-                fetchIssuedItems();
-            } else {
-                setLoading(false);
-                setError("You are not authorized to manage supply returns.");
-            }
-        } else if (!authLoading && !user) {
-            setLoading(false);
-            setError("You must be logged in to manage supply returns.");
-        }
-    }, [authLoading, user, isAuthorized]);
-
-    const fetchIssuedItems = async () => {
+    const fetchIssuedItems = useCallback(async () => {
         setLoading(true);
         setError(null);
+        setRefreshing(true); // Start refreshing animation
         try {
             const q = query(
                 collection(db, 'issuanceLogs'),
@@ -100,8 +85,23 @@ const ReturnSupplyScreen: React.FC = () => {
             setError("Failed to load issued items. Please try again.");
         } finally {
             setLoading(false);
+            setRefreshing(false); // End refreshing animation
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        if (!authLoading && user) {
+            if (isAuthorized) {
+                fetchIssuedItems();
+            } else {
+                setLoading(false);
+                setError("You are not authorized to manage supply returns.");
+            }
+        } else if (!authLoading && !user) {
+            setLoading(false);
+            setError("You must be logged in to manage supply returns.");
+        }
+    }, [authLoading, user, isAuthorized, fetchIssuedItems]); // Add fetchIssuedItems to dependencies
 
     const toggleSelectItem = (itemId: string) => {
         setSelectedItems(prev =>
@@ -204,7 +204,7 @@ const ReturnSupplyScreen: React.FC = () => {
             Alert.alert("Success", "Selected supplies have been marked as returned and inventory updated based on condition.");
             setSelectedItems([]); // Clear selection
             setSelectedConditions({}); // Clear conditions
-            fetchIssuedItems(); // Refresh the list
+            await fetchIssuedItems(); // Refresh the list after successful return
         } catch (err: any) {
             console.error("Error returning supplies:", err);
             setError(`Failed to return supplies: ${err.message || "An unknown error occurred."}`);
@@ -215,21 +215,21 @@ const ReturnSupplyScreen: React.FC = () => {
     };
 
     const renderItem = ({ item }: { item: IssuanceLogItem }) => (
-        // REMOVED <Provider> HERE!
         <Card style={styles.card} elevation={2}>
             <View style={styles.cardHeader}>
                 <Checkbox
                     status={selectedItems.includes(item.id) ? 'checked' : 'unchecked'}
                     onPress={() => toggleSelectItem(item.id)}
+                    color="#1c398e" // Blue checkbox color
                 />
                 <Text style={styles.supplyName}>{item.supplyName} (x{item.quantity})</Text>
             </View>
-            <Divider />
+            <Divider style={styles.divider} />
             <View style={styles.cardBody}>
-                <Text>Requester: {item.requesterFirstName} {item.requesterLastName}</Text>
-                <Text>Issued On: {item.issuedAt.toLocaleDateString()} {item.issuedAt.toLocaleTimeString()}</Text>
-                <Text numberOfLines={1} ellipsizeMode="tail">Reason: {item.reason}</Text>
-                <Text>Status: {item.status}</Text>
+                <Text style={styles.detailText}>Requester: {item.requesterFirstName} {item.requesterLastName}</Text>
+                <Text style={styles.detailText}>Issued On: {item.issuedAt.toLocaleDateString()} {item.issuedAt.toLocaleTimeString()}</Text>
+                <Text style={styles.detailText} numberOfLines={1} ellipsizeMode="tail">Reason: {item.reason}</Text>
+                <Text style={styles.detailText}>Status: <Text style={{fontWeight: 'bold', color: item.status === 'issued' ? '#FFA000' : '#28a745'}}>{item.status}</Text></Text>
                 {selectedItems.includes(item.id) && ( // Only show condition picker if item is selected
                     <View style={styles.conditionPickerContainer}>
                         <Text style={styles.conditionLabel}>Condition:</Text>
@@ -238,10 +238,12 @@ const ReturnSupplyScreen: React.FC = () => {
                             onDismiss={() => setMenuVisible(prev => ({ ...prev, [item.id]: false }))}
                             anchor={
                                 <Button
-                                    mode="outlined"
+                                    mode="contained" // Changed to contained for a more prominent look
                                     onPress={() => setMenuVisible(prev => ({ ...prev, [item.id]: true }))}
                                     style={styles.conditionButton}
                                     labelStyle={styles.conditionButtonLabel}
+                                    buttonColor="#e9ecef" // Light grey background
+                                    textColor="#333" // Dark text color
                                 >
                                     {selectedConditions[item.id] || 'Select Condition'}
                                 </Button>
@@ -252,6 +254,7 @@ const ReturnSupplyScreen: React.FC = () => {
                                     key={condition}
                                     onPress={() => handleConditionSelect(item.id, condition)}
                                     title={condition}
+                                    titleStyle={{fontSize: 13}} // Smaller font for menu items
                                 />
                             ))}
                         </Menu>
@@ -260,17 +263,14 @@ const ReturnSupplyScreen: React.FC = () => {
                 )}
             </View>
         </Card>
-        // REMOVED </Provider> HERE!
     );
 
     if (loading) {
         return (
-            // Portal.Host should ideally be higher up in App.tsx, but if this screen is the only one
-            // using Portals and you want to keep it simple, wrapping the top-level view is a quick fix.
             <Portal.Host>
                 <View style={styles.centered}>
-                    <ActivityIndicator size="large" />
-                    <Text style={styles.loadingText}>Loading issued items...</Text>
+                    <ActivityIndicator size="large" color="#1c398e" />
+                    <Text style={styles.loadingText}>Loading issued items</Text>
                 </View>
             </Portal.Host>
         );
@@ -282,7 +282,7 @@ const ReturnSupplyScreen: React.FC = () => {
                 <View style={styles.centered}>
                     <Text style={styles.errorText}>{error}</Text>
                     {isAuthorized && (
-                        <Button mode="contained" onPress={fetchIssuedItems} style={styles.retryButton}>
+                        <Button mode="contained" onPress={fetchIssuedItems} style={styles.retryButton} buttonColor="#1c398e">
                             Retry
                         </Button>
                     )}
@@ -291,13 +291,13 @@ const ReturnSupplyScreen: React.FC = () => {
         );
     }
 
-    if (issuedItems.length === 0) {
+    if (issuedItems.length === 0 && !loading) { // Added !loading to prevent "No items" while loading
         return (
             <Portal.Host>
                 <View style={styles.centered}>
                     <Text style={styles.noItemsText}>No items currently issued.</Text>
                     {isAuthorized && (
-                        <Button mode="contained" onPress={fetchIssuedItems} style={styles.retryButton}>
+                        <Button mode="contained" onPress={fetchIssuedItems} style={styles.retryButton} buttonColor="#1c398e">
                             Refresh List
                         </Button>
                     )}
@@ -307,7 +307,6 @@ const ReturnSupplyScreen: React.FC = () => {
     }
 
     return (
-        // Portal.Host should wrap your main screen content
         <Portal.Host>
             <View style={styles.container}>
                 <FlatList
@@ -315,6 +314,14 @@ const ReturnSupplyScreen: React.FC = () => {
                     keyExtractor={(item) => item.id}
                     renderItem={renderItem}
                     contentContainerStyle={styles.listContent}
+                    showsVerticalScrollIndicator={false}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={refreshing}
+                            onRefresh={fetchIssuedItems}
+                            tintColor="#1c398e" // Color of the refresh spinner
+                        />
+                    }
                 />
                 <Button
                     mode="contained"
@@ -322,9 +329,10 @@ const ReturnSupplyScreen: React.FC = () => {
                     disabled={selectedItems.length === 0 || isReturning || !isAuthorized}
                     loading={isReturning}
                     style={styles.returnButton}
-                    labelStyle={{ color: '#fafaf9' }} // Ensure text is white
+                    labelStyle={styles.returnButtonLabel} // Apply labelStyle
+                    buttonColor="#1c398e" // Primary blue color
                 >
-                    {isReturning ? 'Returning...' : `Return Selected (${selectedItems.length})`}
+                    {isReturning ? 'Returning' : `Return Selected (${selectedItems.length})`}
                 </Button>
             </View>
         </Portal.Host>
@@ -334,109 +342,123 @@ const ReturnSupplyScreen: React.FC = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 16,
-        backgroundColor: '#f8f8f8',
+        padding: 10, // Reduced overall padding
+        backgroundColor: '#f5f5f5', // Lighter background for consistency
     },
     centered: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
         padding: 20,
+        backgroundColor: '#f5f5f5',
     },
     loadingText: {
         marginTop: 10,
-        fontSize: 16,
+        fontSize: 15, // Slightly smaller font
         color: '#555',
     },
     errorText: {
-        color: 'red',
-        fontSize: 16,
+        color: '#dc3545', // Red for errors
+        fontSize: 15,
         textAlign: 'center',
         marginBottom: 15,
     },
     noItemsText: {
-        fontSize: 18,
+        fontSize: 16, // Slightly smaller
         color: '#777',
         textAlign: 'center',
         marginBottom: 15,
     },
     retryButton: {
         marginTop: 10,
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 20,
-        color: '#333',
-        textAlign: 'center',
+        width: '50%', // Make button slightly narrower
     },
     listContent: {
-        paddingBottom: 20,
+        paddingBottom: 20, // Keep some padding at the bottom for the FAB
     },
     card: {
-        marginVertical: 8,
+        marginVertical: 6, // Reduced vertical margin between cards
+        marginHorizontal: 5, // Small horizontal margin
+        borderRadius: 8, // Consistent border radius
         elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+        backgroundColor: '#fff', // White card background
     },
     cardHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 16,
-        paddingBottom: 8,
+        padding: 10, // Reduced padding
+        paddingBottom: 5, // Reduced bottom padding for header
+    },
+    divider: {
+        marginHorizontal: 10, // Apply margin to divider for better visual separation
+        backgroundColor: '#e0e0e0', // Lighter divider
     },
     cardBody: {
-        padding: 16,
-        paddingTop: 8,
+        padding: 10, // Reduced padding
+        paddingTop: 5, // Reduced top padding for body
     },
-    details: {
-        marginLeft: 10,
-        flex: 1,
+    detailText: {
+        fontSize: 13, // Smaller font for details
+        color: '#333', // Darker text
+        marginBottom: 2, // Reduced line spacing
     },
     supplyName: {
-        fontSize: 18,
+        fontSize: 16, // Slightly smaller font
         fontWeight: 'bold',
-        marginLeft: 10,
+        marginLeft: 8, // Reduced margin
         flex: 1,
+        color: '#1c398e', // Primary blue for supply name
     },
     returnButton: {
         alignSelf: 'center',
-        marginTop: 20,
-        paddingVertical: 10,
-        backgroundColor: '#1c398e',
-        width: '70%',
-        
+        marginTop: 15, // Reduced margin from the list
+        paddingVertical: 5, // Reduced vertical padding
+        width: '80%', // Made slightly wider for better tap target
+        borderRadius: 8, // Consistent border radius
+        elevation: 4, // Slightly more prominent shadow
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 3,
+    },
+    returnButtonLabel: {
+        fontSize: 15, // Slightly smaller font for the button
+        color: '#fff', // White text
+        fontWeight: '600', // Semi-bold
     },
     // Styles for Condition Picker
     conditionPickerContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginTop: 10,
-        backgroundColor: '#f0f0f0',
-        borderRadius: 5,
+        marginTop: 8, // Reduced margin top
+        backgroundColor: '#f0f0f0', // Light background for picker
+        borderRadius: 6, // Consistent border radius
         borderWidth: 1,
         borderColor: '#ddd',
-        paddingVertical: 5,
-        paddingHorizontal: 10,
+        paddingVertical: 3, // Reduced vertical padding
+        paddingHorizontal: 8, // Reduced horizontal padding
     },
     conditionLabel: {
-        fontSize: 14,
+        fontSize: 13, // Smaller font
         color: '#555',
-        marginRight: 10,
+        marginRight: 8, // Reduced margin
         fontWeight: 'bold',
     },
     conditionButton: {
         flex: 1,
-        justifyContent: 'flex-start', // Align text to the left
+        justifyContent: 'flex-start',
         borderColor: 'transparent',
         borderWidth: 0,
-        // REMOVE or adjust this line:
-        // paddingHorizontal: 0,
-        paddingHorizontal: 8, // <--- Add some reasonable padding here
-        // or just remove the line completely if you want default button padding
+        paddingHorizontal: 0, // Ensure no padding from the Button itself
     },
     conditionButtonLabel: {
-        fontSize: 14,
+        fontSize: 13, // Smaller font
         color: '#333',
-        textAlign: 'left', // Ensure text is left-aligned within the button
+        textAlign: 'left',
     }
 });
 

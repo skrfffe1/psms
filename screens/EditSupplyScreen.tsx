@@ -118,7 +118,7 @@ const EditSupplyScreen: React.FC<EditSupplyScreenProps> = ({ navigation }) => {
                         dropdownIconRippleColor="#fff"
                         itemStyle={{ color: '#fff' }}
                     >
-                        <Picker.Item label="Select Category..." value="" />
+                        <Picker.Item label="Select Category" value="" />
                         {itemValues.map((item, index) => (
                             <Picker.Item key={index} label={item} value={item} />
                         ))}

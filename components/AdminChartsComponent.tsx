@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, Dimensions, StatusBar } from 'react-native';
-import { Card, Title, Paragraph } from 'react-native-paper'; // Import Title and Paragraph from react-native-paper
+import { Card } from 'react-native-paper'; // Import Title and Paragraph from react-native-paper
 import PagerView from 'react-native-pager-view';
 
 import SupplyQuantityPieChart from './charts/SupplyQuantityPieChart';
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
         paddingTop: 0,
     },
     chartCard: {
-        marginBottom: 20,
+        marginBottom: 5,
         elevation: 4,
         borderRadius: 10,
     },

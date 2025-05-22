@@ -125,7 +125,7 @@ export default function ReturnConditionPieChart({ containerWidth, maxSlices = 7 
         return (
             <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color="#1c398e" />
-                <Text style={styles.loadingText}>Loading Return Conditions...</Text>
+                <Text style={styles.loadingText}>Loading Return Conditions</Text>
             </View>
         );
     }

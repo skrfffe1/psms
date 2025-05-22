@@ -136,7 +136,7 @@ export default function PendingRequestsBarChart({ containerWidth }: PendingReque
         return (
             <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color="#1c398e" />
-                <Text style={styles.loadingText}>Loading Pending Requests...</Text>
+                <Text style={styles.loadingText}>Loading Pending Requests</Text>
             </View>
         );
     }

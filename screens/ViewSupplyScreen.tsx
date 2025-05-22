@@ -145,7 +145,7 @@ const ViewSupplyScreen = ({ navigation, refreshSupplyList }: ViewSupplyScreenPro
         <View style={[globalStyles.container, { padding: 20, flex: 1 }]}>
             <TextInput
                 style={styles.searchInput}
-                placeholder="Search supplies..."
+                placeholder="Search supplies"
                 value={searchQuery}
                 onChangeText={handleSearch}
             />

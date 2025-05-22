@@ -113,11 +113,11 @@ export default function SupplyQuantityPieChart({ containerWidth, maxSlices = 8 }
         return (
             <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color="" />
-                <Text style={styles.loadingText}>Loading Supply Quantities...</Text>
+                <Text style={styles.loadingText}>Loading Supply Quantities</Text>
             </View>
         );
     }
-    // ... (rest of your component's rendering logic and styles are unchanged) ...
+    //  (rest of your component's rendering logic and styles are unchanged) 
     if (error) {
         return (
             <View style={styles.errorContainer}>

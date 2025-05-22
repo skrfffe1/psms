@@ -36,7 +36,7 @@ const RequestSupplyScreen = ({ navigation }: RequestSupplyScreenProps) => {
       try {
         const snapshot = await getDocs(collection(db, 'supplies'));
         const availableSupplies = snapshot.docs.map(doc => {
-          const { id, ...data } = doc.data() as Supply;
+            const data = doc.data() as Omit<Supply, 'id'>;
           return { id: doc.id, ...data };
         }).filter(item => item.quantity > 0);
         setSupplies(availableSupplies);
@@ -127,7 +127,17 @@ const RequestSupplyScreen = ({ navigation }: RequestSupplyScreenProps) => {
       Alert.alert(
         'Success',
         'Request submitted ✅',
-        [{ text: 'OK', onPress: () => navigation.goBack() }]
+        [{
+          text: 'OK',
+          onPress: () => {
+            navigation.goBack();
+            setSelectedSupplyId('');
+            setQuantity('');
+            setReason('');
+          }
+        }],
+        { cancelable: false },
+        
       );
     } catch (error: any) {
       console.error('Error:', error.message);

@@ -9,6 +9,7 @@ import {
     updateProfile,
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { Alert } from 'react-native';
 
 // Define a custom User type that extends Firebase's User and includes your custom fields
 interface CustomUser extends FirebaseAuthUser {
@@ -101,7 +102,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             await signInWithEmailAndPassword(auth, email, password);
             // onAuthStateChanged will handle state updates, including fetching Firestore data
         } catch (error: any) {
-            console.error('Login Error:', error.message);
+            // console.error('Login Error:', error.message);
+            // Handle specific error messages if needed
+            // For example, you can check for error codes and set custom messages
             throw error;
         } finally {
             setLoading(false);
@@ -149,7 +152,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             // The onAuthStateChanged listener will automatically pick up the new user and
             // fetch their Firestore data, updating the context.
         } catch (error: any) {
-            console.error('Signup Error:', error.message);
+            // console.error('Signup Error:', error.message);
             throw error;
         } finally {
             setLoading(false);

@@ -91,7 +91,7 @@ const UserDetailsScreen = ({ route, navigation }: any) => {
         return (
             <View style={styles.loadingContainer}>
                 <ActivityIndicator animating={true} color={colors.primary} size="large" />
-                <Text style={{ marginTop: 10, color: colors.secondary }}>Loading User Details...</Text>
+                <Text style={{ marginTop: 10, color: colors.secondary }}>Loading User Details</Text>
             </View>
         );
     }

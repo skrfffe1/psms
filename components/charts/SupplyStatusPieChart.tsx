@@ -115,11 +115,11 @@ export default function SupplyStatusPieChart({ containerWidth }: SupplyStatusPie
         return (
             <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color="#1c398e" />
-                <Text style={styles.loadingText}>Loading Supply Status...</Text>
+                <Text style={styles.loadingText}>Loading Supply Status</Text>
             </View>
         );
     }
-    // ... (rest of your component's rendering logic and styles are unchanged) ...
+    // (rest of your component's rendering logic and styles are unchanged)
     if (error) {
         return (
             <View style={styles.errorContainer}>

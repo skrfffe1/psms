@@ -276,7 +276,7 @@ const SignupScreen = () => {
                 style={styles.button}
                 loading={loading}
             >
-                {loading ? 'Signing up...' : 'Sign Up'}
+                {loading ? 'Signing up' : 'Sign Up'}
             </Button>
         </ScrollView>
     );

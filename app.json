@@ -4,7 +4,7 @@
     "slug": "psms-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/psms-logo.png",
+    "icon": "./assets/images/lnu-logo.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -13,7 +13,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/psms-logo.png",
+        "foregroundImage": "./assets/images/lnu-logo.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.skrfffe1.psmsapp"
@@ -28,7 +28,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/psms-logo.png",
+          "image": "./assets/images/lnu-logo.png",
           "imageWidth": 150,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"

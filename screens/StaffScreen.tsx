@@ -106,7 +106,7 @@ const StaffRequestsComponent = ({ filter }: { filter: 'all' | 'supply' | 'mainte
                                     reason: data.reason,
                                     createdAt,
                                     type: 'supply' as const,
-                                    supplyDescription: supply ? supply.description : 'Description N/A', // Add Description
+                                    supplyDescription: supply ? supply.description : 'Description N/A', // Always a string
                                 };
                             });
                             allRequests = [...allRequests, ...supplyRequestsData];
@@ -264,7 +264,7 @@ const StaffRequestsComponent = ({ filter }: { filter: 'all' | 'supply' | 'mainte
     return (
         <Animated.View style={{ flex: 1, opacity: fadeAnim, backgroundColor: '#f0f4f8' }}>
             <Searchbar
-                placeholder="Search Requests..."
+                placeholder="Search Requests"
                 onChangeText={setSearchQuery}
                 value={searchQuery}
                 style={styles.searchBar}
@@ -274,7 +274,7 @@ const StaffRequestsComponent = ({ filter }: { filter: 'all' | 'supply' | 'mainte
                     <ActivityIndicator size="large" color="#007AFF" />
                 </View>
             ) : filteredRequests.length === 0 ? (
-                <Text style={styles.noRequestsText}>You have not made any requests yet.</Text>
+                <Text style={styles.noRequestsText}>You have not made any requests yet</Text>
             ) : (
                 <FlatList
                     data={filteredRequests}
