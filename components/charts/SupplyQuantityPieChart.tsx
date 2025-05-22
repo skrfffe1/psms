@@ -155,7 +155,6 @@ export default function SupplyQuantityPieChart({ containerWidth, maxSlices = 8 }
                 hasLegend={true}
                 style={{
                     borderRadius: 8,
-                    marginVertical: 10,
                 }}
             />
         </View>
@@ -169,7 +168,6 @@ const styles = StyleSheet.create({
     container: {
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 10,
     },
     loadingContainer: {
         minHeight: 150,
@@ -208,6 +206,6 @@ const styles = StyleSheet.create({
         borderRadius: 8, // Matches PieChart's borderRadius
         opacity: 0.3, // Adjust for subtlety
         zIndex: 1, // Ensure it overlays the chart
-        marginTop: 1, // Adjust for spacing
+
     }
 });

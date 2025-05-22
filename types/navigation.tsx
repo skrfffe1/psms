@@ -16,9 +16,11 @@ export type RootStackParamList = {
   ViewSupply: undefined; // No parameters
   UserRequests: { userId: string };
   ReturnSupply: undefined;
+  UserManagement: undefined; // No parameters
+  ReportScreen: undefined; // No parameters
 
   UserDetails: { userId: string }; // Corrected type for UserDetails screen
-
+  // No parameters
 };
 
 
@@ -38,3 +40,5 @@ export type ViewSupplyScreenProps = StackScreenProps<RootStackParamList, 'ViewSu
 export type UserRequestsScreenProps = StackScreenProps<RootStackParamList, 'UserRequests'>;
 export type UserDetailsScreenProps = StackScreenProps<RootStackParamList, 'UserDetails'>; // Corrected type for UserDetails screen
 export type ReturnSupplyScreenProps = StackScreenProps<RootStackParamList, 'ReturnSupply'>;
+export type UserManagementScreenProps = StackScreenProps<RootStackParamList, 'UserManagement'>; // No parameters
+export type ReportScreenProps = StackScreenProps<RootStackParamList, 'ReportScreen'>; // No parameters

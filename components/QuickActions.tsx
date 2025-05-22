@@ -21,7 +21,7 @@ const QuickActions = () => {
             <Button
                 mode="contained"
                 style={styles.button}
-                onPress={() => navigation.navigate('ManageRequest')}
+                onPress={() => navigation.navigate('ManageRequest', { requestId: '', requestType: '' })}
             >
                 Manage Requests
             </Button>

@@ -14,8 +14,9 @@ import EditSupplyScreen from '@/screens/EditSupplyScreen';
 import MaintenanceRequestScreen from '@/screens/MaintenanceRequestScreen';
 import ManageRequestScreen from '@/screens/ManageRequestScreen';
 import ReturnSupplyScreen from '@/screens/ReturnSupplyScreen';
+import ReportScreen from '@/screens/ReportScreen';
 import { useAuth } from '@/context/AuthContext';
-import { View, StyleSheet, TouchableOpacity } from 'react-native'; // Added TouchableOpacity
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import AddSupplyScreen from '@/screens/AddSupplyScreen';
 import UsersDetailsScreen from '@/screens/UsersDetailsScreen';
 import { Ionicons } from '@expo/vector-icons';
@@ -45,7 +46,7 @@ interface CustomDrawerContentProps extends DrawerContentComponentProps {
     role: string | null;
     logout: () => void;
     name: string | null;
-    profilePictureUrl: string | null; 
+    profilePictureUrl: string | null;
 }
 
 
@@ -113,17 +114,18 @@ const CustomDrawerContent = ({ role, logout, profilePictureUrl, name, ...props }
                         </View>
                     </View>
                 </View>
-                <PaperDrawer.Section>
+                {/* Decreased paddingTop to 0 for minimal space after user info */}
+                <PaperDrawer.Section style={{ paddingTop: 0 }}> {/* Changed from 5 to 0 */}
                     <DrawerItemList {...props} />
                 </PaperDrawer.Section>
-                <View style={{ flex: 1 }} />
+                <View style={{ flex: 1 }} /> {/* This still ensures logout is at the bottom */}
             </DrawerContentScrollView>
             <PaperDrawer.Section style={styles.bottomDrawerSection}>
                 <DrawerItem
                     label="Logout"
                     onPress={logout}
-                    icon={() => <Ionicons name="exit-outline" size={22} color={colors.onSurface} />}
-                    labelStyle={{ color: colors.onSurface }}
+                    icon={() => <Ionicons name="exit-outline" size={20} color={colors.onSurface} />}
+                    labelStyle={{ color: colors.onSurface, fontSize: 13 }}
                 />
             </PaperDrawer.Section>
         </View>
@@ -165,7 +167,7 @@ const AppDrawer = () => {
                 headerShown: true,
                 drawerActiveTintColor: colors.primary,
                 drawerInactiveTintColor: colors.onSurface,
-                drawerLabelStyle: { marginLeft: -16, color: colors.onSurface },
+                drawerLabelStyle: { marginLeft: -16, color: colors.onSurface, fontSize: 13 },
                 headerTitleStyle: { color: '#dbeafe' },
                 headerStyle: { backgroundColor: '#1c398e' },
                 headerTintColor: '#dbeafe',
@@ -180,8 +182,7 @@ const AppDrawer = () => {
                         role={role === 'admin' || role === 'head' || role === 'staff' ? role : null}
                         logout={logout}
                         name={userName}
-                        profilePictureUrl={profilePictureUrl} // Pass the URL
-                        
+                        profilePictureUrl={profilePictureUrl}
                     />
                 </>
             )}
@@ -192,23 +193,31 @@ const AppDrawer = () => {
                         name="Admin"
                         component={AdminScreen}
                         options={{
-                            drawerIcon: ({ color, size }) => <Ionicons name="shield-checkmark-outline" size={size} color={color} />,
+                            drawerIcon: ({ color }) => <Ionicons name="shield-checkmark-outline" size={20} color={color} />,
                             drawerLabel: 'Admin Area',
                             drawerLabelStyle: { marginLeft: 10 },
                         }}
                     />
-                    <Drawer.Screen // Add AdminSignupScreen here
-
+                    <Drawer.Screen
                         name="Signup"
                         component={SignupScreen}
                         options={{
-                            drawerIcon: ({ color, size }) => <Ionicons name="person-add-outline" size={size} color={color} />,
+                            drawerIcon: ({ color }) => <Ionicons name="person-add-outline" size={20} color={color} />,
                             drawerLabel: 'Add User',
                             drawerLabelStyle: { marginLeft: 10 },
                             headerTitle: 'Sign Up',
                         }}
                     />
-                    {/* ... other admin screens ... */}
+                    <Drawer.Screen
+                        name="ReportScreen"
+                        component={ReportScreen}
+                        options={{
+                            drawerIcon: ({ color }) => <Ionicons name="bar-chart-outline" size={20} color={color} />,
+                            drawerLabel: 'Reports',
+                            drawerLabelStyle: { marginLeft: 10 },
+                            headerTitle: 'Reports',
+                        }}
+                    />
                 </>
             )}
             {role === 'head' && (
@@ -216,7 +225,7 @@ const AppDrawer = () => {
                     name="Head"
                     component={HeadScreen}
                     options={{
-                        drawerIcon: ({ color, size }) => <Ionicons name="ribbon-outline" size={size} color={color} />,
+                        drawerIcon: ({ color }) => <Ionicons name="ribbon-outline" size={20} color={color} />,
                         drawerLabel: 'Head Area',
                         drawerLabelStyle: { marginLeft: 10 },
                     }}
@@ -227,7 +236,7 @@ const AppDrawer = () => {
                     name="Staff"
                     component={StaffScreen}
                     options={{
-                        drawerIcon: ({ color, size }) => <Ionicons name="person-outline" size={size} color={color} />,
+                        drawerIcon: ({ color }) => <Ionicons name="person-outline" size={20} color={color} />,
                         drawerLabel: 'Staff Area',
                         drawerLabelStyle: { marginLeft: 10 },
                     }}
@@ -237,7 +246,7 @@ const AppDrawer = () => {
                 <Drawer.Screen
                     name="ViewSupply"
                     options={{
-                        drawerIcon: ({ color, size }) => <Ionicons name="search-outline" size={size} color={color} />,
+                        drawerIcon: ({ color }) => <Ionicons name="search-outline" size={20} color={color} />,
                         drawerLabel: 'View Supply',
                         drawerLabelStyle: { marginLeft: 10 },
                         headerTitle: 'View Supply',
@@ -259,7 +268,7 @@ const AppDrawer = () => {
                         name="RequestSupply"
                         component={RequestSupplyScreen}
                         options={{
-                            drawerIcon: ({ color, size }) => <Ionicons name="download-outline" size={size} color={color} />,
+                            drawerIcon: ({ color }) => <Ionicons name="download-outline" size={20} color={color} />,
                             drawerLabel: 'Request Supply',
                             drawerLabelStyle: { marginLeft: 10 },
                         }}
@@ -268,7 +277,7 @@ const AppDrawer = () => {
                         name="MaintenanceRequest"
                         component={MaintenanceRequestScreen}
                         options={{
-                            drawerIcon: ({ color, size }) => <Ionicons name="construct-outline" size={size} color={color} />,
+                            drawerIcon: ({ color }) => <Ionicons name="construct-outline" size={20} color={color} />,
                             drawerLabel: 'Maintenance Request',
                             drawerLabelStyle: { marginLeft: 10 },
                             headerTitle: 'Maintenance Request',
@@ -299,7 +308,7 @@ const AppDrawer = () => {
                         name="ManageRequest"
                         component={ManageRequestScreen}
                         options={{
-                            drawerIcon: ({ color, size }) => <Ionicons name="layers-outline" size={size} color={color} />,
+                            drawerIcon: ({ color }) => <Ionicons name="layers-outline" size={20} color={color} />,
                             drawerLabel: 'Manage Requests',
                             drawerLabelStyle: { marginLeft: 10 },
                             headerTitle: 'Manage Requests',
@@ -309,7 +318,7 @@ const AppDrawer = () => {
                         name="AddSupply"
                         component={AddSupplyScreen}
                         options={{
-                            drawerIcon: ({ color, size }) => <Ionicons name="add-outline" size={size} color={color} />,
+                            drawerIcon: ({ color }) => <Ionicons name="add-outline" size={20} color={color} />,
                             drawerLabel: 'Add Supply',
                             drawerLabelStyle: { marginLeft: 10 },
                             headerTitle: 'Add Supply',
@@ -319,7 +328,7 @@ const AppDrawer = () => {
                         name="ReturnSupply"
                         component={ReturnSupplyScreen}
                         options={{
-                            drawerIcon: ({ color, size }) => <Ionicons name="arrow-undo-outline" size={size} color={color} />,
+                            drawerIcon: ({ color }) => <Ionicons name="arrow-undo-outline" size={20} color={color} />,
                             drawerLabel: 'Return Supply',
                             drawerLabelStyle: { marginLeft: 10 },
                             headerTitle: 'Return Supply',
@@ -329,12 +338,11 @@ const AppDrawer = () => {
             )}
 
             {(role === 'admin' || role === 'head' || role === 'staff') && (
-               // put here about user details
                 <Drawer.Screen
                     name="UserDetails"
                     component={UsersDetailsScreen}
                     options={{
-                        drawerIcon: ({ color, size }) => <Ionicons name="book-outline" size={size} color={color} />,
+                        drawerIcon: ({ color }) => <Ionicons name="book-outline" size={20} color={color} />,
                         drawerLabel: 'User Details',
                         drawerLabelStyle: { marginLeft: 10 },
                         headerTitle: 'User Details',
@@ -386,7 +394,6 @@ const styles = StyleSheet.create({
     },
     userInfoSection: {
         padding: 20,
-        marginBottom: 10,
         alignItems: 'flex-start',
         backgroundColor: '#193cb8',
     },
@@ -394,6 +401,7 @@ const styles = StyleSheet.create({
         marginBottom: 15,
         borderTopColor: '#f4f4f4',
         borderTopWidth: 1,
+        marginTop: 0, // Decreased from 5 to 0 for minimal space
     },
 });
 

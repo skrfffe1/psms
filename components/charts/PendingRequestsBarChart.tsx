@@ -161,8 +161,8 @@ export default function PendingRequestsBarChart({ containerWidth }: PendingReque
         <View>
             <BarChart
                 data={chartData}
-                width={chartRenderWidth}
-                height={200}
+                width={chartRenderWidth }
+                height={150}
                 chartConfig={chartConfig}
                 verticalLabelRotation={0} // Keep labels horizontal
                 fromZero={true} // Ensure y-axis starts from zero
@@ -209,6 +209,5 @@ const styles = StyleSheet.create({
     },
     chart: {
         borderRadius: 8,
-        marginVertical: 8,
     },
 });

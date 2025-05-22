@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { View, StyleSheet, Alert, FlatList, RefreshControl, Animated, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Alert, FlatList, RefreshControl, Animated } from 'react-native';
 import { getFirestore, collection, query, where, onSnapshot, FirestoreError, orderBy, getDocs  } from 'firebase/firestore';
 import { useAuth } from '../context/AuthContext';
 import { ActivityIndicator, Text, Provider, BottomNavigation, Card, Searchbar } from 'react-native-paper'; // Added Searchbar

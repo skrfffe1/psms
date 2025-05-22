@@ -159,7 +159,6 @@ const styles = StyleSheet.create({
     container: {
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 10,
     },
     loadingContainer: {
         minHeight: 150,
