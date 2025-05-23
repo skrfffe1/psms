@@ -262,7 +262,7 @@ const AppDrawer = () => {
                     )}
                 </Drawer.Screen>
             )}
-            {role !== 'staff' && (
+            {(role == 'staff' || role !== 'admin') && (
                 <>
                     <Drawer.Screen
                         name="RequestSupply"

@@ -119,7 +119,7 @@ const ManageRequestsScreen = ({ navigation }: { navigation: StackNavigationProp<
                     if (dateValue === null || dateValue === undefined) {
                         return new Date(0); // fallback to epoch if date is missing
                     }
-                    if (typeof dateValue.toDate === 'function') {
+                    if (dateValue && typeof dateValue.toDate === 'function') {
                         return dateValue.toDate();
                     }
                     return dateValue instanceof Date ? dateValue : new Date(dateValue);

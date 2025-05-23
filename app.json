@@ -46,6 +46,12 @@
         "projectId": "007cc5de-1f2b-4414-ae8d-32efaaf6af5d"
       }
     },
-    "owner": "skrfffe1"
+    "owner": "skrfffe1",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/007cc5de-1f2b-4414-ae8d-32efaaf6af5d"
+    }
   }
 }
