@@ -48,3 +48,11 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+## Author
+
+## Angelito A. Domingo
+
+- [Github](https://github.com/skrfffe1): Feel free to visit my account
+- [Facebook](https://facebook.com/skrfffe1): Contact me here or send an email.
+- Email: com.dan.atwork@gmail.com
